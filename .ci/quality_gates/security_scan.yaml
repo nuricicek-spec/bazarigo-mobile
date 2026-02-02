@@ -1,0 +1,28 @@
+// .ci/quality_gates/security_scan.yaml
+# Güvenlik tarama kuralları
+security_checks:
+  dependency_scanning:
+    enabled: true
+    tool: "dart pub outdated"
+    check_for_vulnerabilities: true
+  
+  secrets_detection:
+    enabled: true
+    patterns:
+      - "API_KEY.*="
+      - "SECRET.*="
+      - "PASSWORD.*="
+      - "TOKEN.*="
+    
+  ssl_configuration:
+    require_ssl_pinning: true
+    validate_certificates: true
+    
+  code_analysis:
+    detect_sql_injection: true
+    detect_xss_vulnerabilities: true
+    detect_hardcoded_credentials: true
+
+scan_frequency: "on_every_push"
+fail_on_critical: true
+fail_on_high: true
