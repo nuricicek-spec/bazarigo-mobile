@@ -4,8 +4,8 @@ publish_to: 'none'
 version: 4.0.3+100
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.0.0"
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
@@ -18,7 +18,7 @@ dependencies:
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.5
   
-  # ============ FIREBASE (main.dart'da kullanılıyor) ============
+  # ============ FIREBASE ============
   firebase_core: ^2.30.0
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.15.0
@@ -47,7 +47,7 @@ dependencies:
   flutter_secure_storage_web: ^1.1.2
   
   # ============ UTILITIES ============
-  synchronized: ^5.0.0
+  synchronized: ^3.0.0
   universal_io: ^2.1.0
 
 dev_dependencies:
@@ -71,11 +71,9 @@ dev_dependencies:
   # ============ JSON ============
   json_serializable: ^6.7.1
 
-# ============ FLUTTER CONFIG ============
 flutter:
   uses-material-design: true
   
-  # Main.dart'da kullanılan fontlar
   fonts:
     - family: RobotoMono
       fonts:
