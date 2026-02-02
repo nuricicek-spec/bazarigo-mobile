@@ -1,0 +1,24 @@
+// .ci/quality_gates/coverage_threshold.yaml
+# Minimum test coverage requirements
+minimum_coverage: 80%
+
+module_specific_coverage:
+  core:
+    minimum: 85%
+    critical_modules: ['security/', 'network/']
+    
+  features:
+    minimum: 75%
+    auth: 90%
+    listings: 80%
+    admin: 70%
+
+exemptions:
+  - generated_code/
+  - test_utils/
+  - mocks/
+
+enforcement:
+  on_pull_request: true
+  on_main_branch: true
+  fail_on_violation: true
