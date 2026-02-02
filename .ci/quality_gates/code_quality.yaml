@@ -1,0 +1,25 @@
+// .ci/quality_gates/code_quality.yaml
+# Kod kalite standartları
+linting:
+  tool: "flutter analyze"
+  max_allowed_issues: 5
+  fail_on_warning: true
+
+code_metrics:
+  max_lines_per_file: 500
+  max_method_lines: 50
+  max_parameters: 5
+  max_nesting_level: 3
+
+documentation:
+  public_api_documentation: true
+  minimum_documentation_percentage: 30%
+
+complexity:
+  max_cyclomatic_complexity: 15
+  max_maintainability_index: 85
+
+style:
+  enforce_null_safety: true
+  prefer_const_constructors: true
+  avoid_dynamic: true
