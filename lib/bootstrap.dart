@@ -1,4 +1,4 @@
-// lib/bootstrap.dart (BOŞ - şimdilik)
+// BASİT VERSİYON - CI için yeterli
 class BootstrapException implements Exception {
   final String message;
   BootstrapException(this.message);
@@ -14,10 +14,10 @@ class BootstrapResult {
   final dynamic remoteConfig;
   final dynamic sslPinningManager;
   
-  BootstrapResult({
-    required this.isDegradedMode,
-    required this.metrics,
-    required this.failedServices,
+  const BootstrapResult({
+    this.isDegradedMode = false,
+    this.metrics = const {'total_duration': 0},
+    this.failedServices = const [],
     this.secureStorage,
     this.environment,
     this.appConfig,
@@ -27,9 +27,5 @@ class BootstrapResult {
 }
 
 Future<BootstrapResult> bootstrapApp({bool enableSSL = true}) async {
-  return BootstrapResult(
-    isDegradedMode: false,
-    metrics: {'total_duration': 0},
-    failedServices: [],
-  );
+  return BootstrapResult();
 }
