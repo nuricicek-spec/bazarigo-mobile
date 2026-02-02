@@ -1,0 +1,17 @@
+# Bu dosya, hangi dosyaları kimin review etmesi gerektiğini belirtir
+
+# Tüm dosyalar için varsayılan sahip (sen)
+* @nuricicek-spec
+
+# CI/CD ve GitHub yapılandırması
+/.github/ @nuricicek-spec
+/.ci/ @nuricicek-spec
+
+# Flutter uygulama yapısı
+/lib/core/ @nuricicek-spec
+/lib/features/ @nuricicek-spec
+/lib/shared/ @nuricicek-spec
+
+# Config dosyaları
+/pubspec.yaml @nuricicek-spec
+/analysis_options.yaml @nuricicek-spec
