@@ -1,0 +1,24 @@
+// .ci/quality_gates/forbidden_imports.yaml
+# Clean Architecture import kuralları
+forbidden_patterns:
+  # Domain layer should not depend on outer layers
+  - pattern: "lib/core/domain/.* imports lib/core/application/.*"
+    message: "Domain layer should not import Application layer"
+  
+  - pattern: "lib/core/domain/.* imports lib/core/infrastructure/.*"
+    message: "Domain layer should not import Infrastructure layer"
+  
+  # Features should not import providers directly
+  - pattern: "lib/features/.* imports lib/core/providers/.*"
+    message: "Features should use dependency injection, not import providers directly"
+  
+  # Platform-specific imports
+  - pattern: "import 'dart:io' in web-targeted code"
+    message: "dart:io is not available on web"
+  
+  - pattern: "import 'dart:html' in mobile-targeted code"
+    message: "dart:html is only for web"
+
+allowed_exceptions:
+  - "lib/core/infrastructure/.* imports lib/core/domain/.*"  # Infrastructure can import domain
+  - "lib/core/application/.* imports lib/core/domain/.*"     # Application can import domain
