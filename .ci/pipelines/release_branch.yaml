@@ -1,0 +1,42 @@
+// .ci/pipelines/release_branch.yaml
+# Production release için özel pipeline
+name: Release Pipeline
+
+on:
+  push:
+    branches: [release/**]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+    
+    - name: Install Dependencies
+      run: flutter pub get
+    
+    - name: Security Scan
+      run: .ci/scripts/security_scan.sh
+    
+    - name: Performance Test
+      run: .ci/scripts/performance_test.sh
+    
+    - name: Build Release Artifacts
+      run: |
+        flutter build appbundle --release
+        flutter build ipa --release
+        flutter build web --release
+    
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-builds
+        path: |
+          build/app/outputs/bundle/release/app-release.aab
+          build/ios/ipa/*.ipa
+          build/web/
