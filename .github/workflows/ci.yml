@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 env:
-  FLUTTER_VERSION: "3.13.x"
+  FLUTTER_VERSION: "3.16.x"
 
 jobs:
   # 1. QUALITY GATES - İlk önce kalite kontrolleri
