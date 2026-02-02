@@ -1,4 +1,3 @@
-// lib/app.dart (BOŞ - şimdilik)
 import 'package:flutter/material.dart';
 
 class BazarigoApp extends StatelessWidget {
@@ -6,9 +5,9 @@ class BazarigoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       home: Scaffold(
-        body: Center(child: Text('App')),
+        body: Center(child: Text('Bazarigo App')),
       ),
     );
   }
