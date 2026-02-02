@@ -1,0 +1,28 @@
+// .ci/quality_gates/performance_benchmarks.yaml
+# Performans kriterleri
+app_size_limits:
+  android_apk_max: "50MB"
+  android_aab_max: "100MB"
+  ios_ipa_max: "150MB"
+  web_bundle_max: "10MB"
+
+startup_time:
+  cold_start_max: "3s"
+  warm_start_max: "1s"
+
+memory_usage:
+  max_memory_android: "200MB"
+  max_memory_ios: "250MB"
+  max_memory_web: "100MB"
+
+frame_rate:
+  min_fps: "58fps"
+  jank_percentage_max: "2%"
+
+network_performance:
+  max_api_response_time: "2s"
+  max_image_load_time: "1s"
+
+testing_frequency:
+  performance_tests_run: "weekly"
+  load_tests_run: "monthly"
