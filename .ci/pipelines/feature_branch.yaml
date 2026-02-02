@@ -1,0 +1,32 @@
+// .ci/pipelines/feature_branch.yaml
+# Feature branch'ler için basit pipeline
+name: Feature Pipeline
+
+on: 
+  push:
+    branches: [feature/**]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.13.0'
+    
+    - name: Install Dependencies
+      run: flutter pub get
+    
+    - name: Run Tests
+      run: .ci/scripts/run_tests.sh
+      
+    - name: Check Code Coverage
+      run: .ci/scripts/generate_coverage.sh
+      
+    - name: Run Linter
+      run: flutter analyze
