@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 4.0.3+100
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.0 <4.0.0"
   flutter: ">=3.0.0"
 
 dependencies:
@@ -32,7 +32,7 @@ dependencies:
   # ============ SECURITY ============
   crypto: ^3.0.3
   uuid: ^4.4.0
-  package_info_plus: ^5.0.1
+  package_info_plus: ^4.0.1
   device_info_plus: ^9.0.0
   
   # ============ INTERNATIONALIZATION ============
