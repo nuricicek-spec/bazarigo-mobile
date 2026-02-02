@@ -47,7 +47,7 @@ dependencies:
   flutter_secure_storage_web: ^1.1.2
   
   # ============ UTILITIES ============
-  synchronized: ^5.0.0
+  synchronized: ^3.0.0
   universal_io: ^2.1.0
 
 dev_dependencies:
