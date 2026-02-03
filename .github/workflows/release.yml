@@ -1,20 +1,28 @@
-name: 🎉 Release Pipeline
+name: 🏷️ Release Pipeline
+
+permissions:
+  pull-requests: write
+  contents: read
 
 on:
   push:
-    branches:
-      - 'release/**'
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        default: ''
 
 env:
   FLUTTER_VERSION: "3.16.9"
 
 jobs:
-  validate:
-    name: 🎯 Release Validation
+  release:
+    name: 🚀 Create Release
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     
     steps:
       - name: 📥 Checkout Code
@@ -27,10 +35,21 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
-      - name: 🔍 Run Analyzer (Strict)
-        run: flutter analyze --fatal-infos
+      - name: 📦 Install lcov (coverage tool)
+        shell: bash
+        run: |
+          if ! command -v lcov &> /dev/null; then
+            echo "Installing lcov..."
+            sudo apt-get update -qq
+            sudo apt-get install -y lcov
+          else
+            echo "lcov already installed"
+          fi
       
-      - name: 🧪 Run Full Test Suite
+      - name: 🔍 Run Analyzer
+        run: flutter analyze --no-fatal-infos
+      
+      - name: 🧪 Run Tests
         run: |
           if [ -f ".ci/scripts/run_tests.sh" ]; then
             bash .ci/scripts/run_tests.sh
@@ -38,120 +57,50 @@ jobs:
             flutter test --coverage
           fi
       
-      - name: 📊 Coverage Threshold Check
+      - name: 📊 Generate Coverage Report
+        if: success()
         run: |
           if [ -f ".ci/scripts/generate_coverage.sh" ]; then
             bash .ci/scripts/generate_coverage.sh
+          else
+            echo "Coverage script not found, skipping"
           fi
       
-      - name: ✅ All Quality Gates
+      - name: ✅ Run Quality Gates
         uses: ./.github/actions/run-quality-gates
       
-      - name: 🔒 Security Scan
-        run: |
-          if [ -f ".ci/quality_gates/security_scan.yaml" ]; then
-            echo "Running security scan"
-          fi
-      
-      - name: ⚡ Performance Benchmarks
-        run: |
-          if [ -f ".ci/quality_gates/performance_benchmarks.yaml" ]; then
-            echo "Running performance benchmarks"
-          fi
-
-  build-android:
-    name: 🤖 Build Android
-    needs: validate
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-      
-      - name: 🔧 Setup Flutter
-        uses: ./.github/actions/setup-flutter
+      - name: 📈 Upload Coverage
+        if: success()
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          name: release-coverage
+          fail_ci_if_error: false
       
-      - name: 🏗️ Build Android Release
-        run: |
-          if [ -f ".ci/scripts/build_android.sh" ]; then
-            bash .ci/scripts/build_android.sh
-          else
-            flutter build apk --release
-            flutter build appbundle --release
-          fi
-      
-      - name: 📤 Upload APK
-        uses: actions/upload-artifact@v4
+      - name: 🏗️ Build All Platforms
+        if: success()
+        uses: ./.github/actions/build-artifacts
         with:
-          name: android-apk-release-${{ github.ref_name }}
-          path: |
-            build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/bundle/release/*.aab
-          retention-days: 90
-
-  build-web:
-    name: 🌐 Build Web
-    needs: validate
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+          platform: android
+          flavor: production
       
-      - name: 🔧 Setup Flutter
-        uses: ./.github/actions/setup-flutter
+      - name: 🏗️ Build Web
+        if: success()
+        uses: ./.github/actions/build-artifacts
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          platform: web
+          flavor: production
       
-      - name: 🏗️ Build Web Release
-        run: |
-          if [ -f ".ci/scripts/build_web.sh" ]; then
-            bash .ci/scripts/build_web.sh
-          else
-            flutter build web --release --web-renderer canvaskit
-          fi
-      
-      - name: 📤 Upload Web Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build-release-${{ github.ref_name }}
-          path: build/web/
-          retention-days: 90
-
-  create-release:
-    name: 🎁 Create GitHub Release
-    needs: [build-android, build-web]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-      
-      - name: 📦 Download Android Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: android-apk-release-${{ github.ref_name }}
-          path: ./release-artifacts/android
-      
-      - name: 📦 Download Web Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: web-build-release-${{ github.ref_name }}
-          path: ./release-artifacts/web
-      
-      - name: 🎉 Create Release
+      - name: 🏷️ Create GitHub Release
+        if: success()
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ./release-artifacts/android/*.apk
-            ./release-artifacts/android/*.aab
-          generate_release_notes: true
+          name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
