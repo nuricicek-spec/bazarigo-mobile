@@ -1,0 +1,31 @@
+# Deployment target configuration
+targets:
+  android:
+    min_sdk: 21
+    target_sdk: 34
+    compile_sdk: 34
+    
+  ios:
+    min_version: "12.0"
+    target_version: "17.0"
+    
+  web:
+    browsers:
+      - chrome
+      - firefox
+      - safari
+      - edge
+
+# Store deployment
+stores:
+  google_play:
+    track: internal
+    rollout_percentage: 10
+    
+  app_store:
+    submit_for_review: false
+    phased_release: true
+    
+  firebase_hosting:
+    site: bazarigo-mobile
+    channel: live
