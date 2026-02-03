@@ -30,31 +30,35 @@ analyzer:
 
 linter:
   rules:
-    # === ERROR LEVEL ===
-    avoid_print: error
-    avoid_void_async: error
-    dead_code: error
-    empty_statements: error
-    invariant_booleans: error
-    no_duplicate_case_values: error
-    prefer_void_to_null: error
-    unnecessary_null_checks: error
-    use_build_context_synchronously: error
-    use_key_in_widget_constructors: error
+    # === ERRORS ===
+    avoid_print: true
+    avoid_void_async: true
+    dead_code: true
+    empty_statements: true
+    no_duplicate_case_values: true
+    prefer_void_to_null: true
+    unnecessary_null_checks: true
+    use_build_context_synchronously: true
+    use_key_in_widget_constructors: true
 
-    # === WARNING LEVEL ===
-    always_declare_return_types: warning
-    avoid_dynamic: warning
-    avoid_empty_else: warning
-    avoid_init_to_null: warning
-    avoid_relative_lib_imports: warning
-    cancel_subscriptions: warning
-    close_sinks: warning
-    directives_ordering: warning
-    empty_catches: warning
-    no_logic_in_create_state: warning
-    prefer_const_constructors: warning
-    prefer_final_locals: warning
-    prefer_single_quotes: warning
-    require_trailing_commas: warning
-    unawaited_futures: warning
+    # === WARNINGS ===
+    always_declare_return_types: true
+    avoid_dynamic: true
+    avoid_empty_else: true
+    avoid_init_to_null: true
+    avoid_relative_lib_imports: true
+    cancel_subscriptions: true
+    close_sinks: true
+    directives_ordering: true
+    empty_catches: true
+    no_logic_in_create_state: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    unawaited_futures: true
+    unnecessary_brace_in_string_interps: true
+    unnecessary_const: true
+    unnecessary_new: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_this: true
