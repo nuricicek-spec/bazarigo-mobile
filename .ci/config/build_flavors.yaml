@@ -1,0 +1,34 @@
+# Build flavors configuration
+flavors:
+  - name: dev
+    suffix: .dev
+    app_name: "Bazarigo DEV"
+    bundle_id: com.bazarigo.mobile.dev
+    firebase_project: bazarigo-dev
+    
+  - name: staging
+    suffix: .staging
+    app_name: "Bazarigo STAGING"
+    bundle_id: com.bazarigo.mobile.staging
+    firebase_project: bazarigo-staging
+    
+  - name: production
+    suffix: ""
+    app_name: "Bazarigo"
+    bundle_id: com.bazarigo.mobile
+    firebase_project: bazarigo-prod
+
+# Build configurations
+build:
+  android:
+    split_per_abi: true
+    shrink_resources: true
+    obfuscate: true
+    
+  ios:
+    bitcode: false
+    export_method: app-store
+    
+  web:
+    renderer: canvaskit
+    base_href: /
