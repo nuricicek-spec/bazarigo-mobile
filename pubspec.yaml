@@ -4,41 +4,34 @@ publish_to: 'none'
 version: 4.0.3+100
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.2.0 <4.0.0"
   flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   
-  # ============ UI & CORE ============
   cupertino_icons: ^1.0.6
   
-  # ============ STATE MANAGEMENT ============
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.5
   
-  # ============ FIREBASE (main.dart'da kullanılıyor) ============
   firebase_core: ^2.30.0
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.15.0
   firebase_crashlytics: ^3.3.3
   
-  # ============ NETWORK ============
   http: ^1.2.0
   dio: ^5.4.0
   connectivity_plus: ^5.0.2
   
-  # ============ SECURITY ============
   crypto: ^3.0.3
   uuid: ^4.4.0
   package_info_plus: ^5.0.1
   device_info_plus: ^9.0.0
   
-  # ============ INTERNATIONALIZATION ============
   intl: ^0.19.0
   
-  # ============ STORAGE ============
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.0
@@ -46,8 +39,7 @@ dependencies:
   flutter_secure_storage: ^9.1.0
   flutter_secure_storage_web: ^1.1.2
   
-  # ============ UTILITIES ============
-  synchronized: ^5.0.0
+  synchronized: ^3.0.0
   universal_io: ^2.1.0
 
 dev_dependencies:
@@ -56,26 +48,20 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   
-  # ============ LINTING ============
   flutter_lints: ^3.0.0
   
-  # ============ RIVERPOD DEV ============
   riverpod_generator: ^2.3.7
   riverpod_lint: ^2.4.9
   build_runner: ^2.4.7
   
-  # ============ TESTING ============
   test: ^1.24.0
   mocktail: ^1.0.3
   
-  # ============ JSON ============
   json_serializable: ^6.7.1
 
-# ============ FLUTTER CONFIG ============
 flutter:
   uses-material-design: true
   
-  # Main.dart'da kullanılan fontlar
   fonts:
     - family: RobotoMono
       fonts:
