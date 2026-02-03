@@ -1,6 +1,5 @@
 name: 🌿 Feature Branch CI
 
-# İZİNLERİ EKLE
 permissions:
   pull-requests: write
   contents: read
@@ -34,7 +33,6 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
-      # YENİ ADIM: lcov'u önceden kur
       - name: 📦 Install lcov (coverage tool)
         shell: bash
         run: |
@@ -75,6 +73,7 @@ jobs:
         continue-on-error: true
         with:
           files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests
           name: feature-coverage
           fail_ci_if_error: false
