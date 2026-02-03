@@ -4,16 +4,22 @@ analyzer:
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false
+
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
   errors:
     todo: ignore
     unused_local_variable: error
     dead_code: error
     missing_required_param: error
     missing_return: error
+
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-    - "**/*.riverpod.g.dart"
     - "**/*.config.g.dart"
     - "build/**"
     - ".dart_tool/**"
@@ -21,114 +27,34 @@ analyzer:
     - "**/generated/**"
     - "**/test/**"
     - "**/mock/**"
-  language:
-    strict-casts: true
-    strict-inference: true
-    strict-raw-types: true
-  plugins:
-    - riverpod_lint
 
 linter:
   rules:
-    # ============ ERROR LEVEL ============
-    - avoid_print: error
-    - avoid_void_async: error
-    - dead_code: error
-    - empty_statements: error
-    - invariant_booleans: error
-    - no_duplicate_case_values: error
-    - prefer_void_to_null: error
-    - unnecessary_null_checks: error
-    - use_build_context_synchronously: error
-    - use_key_in_widget_constructors: error
-    - use_named_constants: error
-    
-    # ============ RIVERPOD SPECIFIC ============
-    - provider_dependencies: error
-    - avoid_disposing_in_build_methods: error
-    - avoid_manual_providers_as_generated_provider_dependency: error
-    - avoid_unnecessary_async: error
-    
-    # ============ WARNING LEVEL ============
-    - always_declare_return_types: warning
-    - always_use_package_imports: warning
-    - avoid_dynamic: warning
-    - avoid_empty_else: warning
-    - avoid_function_literals_in_foreach_calls: warning
-    - avoid_init_to_null: warning
-    - avoid_null_checks_in_equality_operators: warning
-    - avoid_relative_lib_imports: warning
-    - avoid_renaming_method_parameters: warning
-    - avoid_return_types_on_setters: warning
-    - avoid_returning_null: warning
-    - avoid_returning_this: warning
-    - avoid_unused_constructor_parameters: warning
-    - avoid_web_libraries_in_flutter: warning
-    - cancel_subscriptions: warning
-    - close_sinks: warning
-    - constant_identifier_names: warning
-    - control_flow_in_finally: warning
-    - directives_ordering: warning
-    - empty_catches: warning
-    - empty_constructor_bodies: warning
-    - implementation_imports: warning
-    - lines_longer_than_80_chars: warning
-    - missing_whitespace_between_adjacent_strings: warning
-    - no_adjacent_strings_in_list: warning
-    - no_duplicate_imports: warning
-    - no_logic_in_create_state: warning
-    - non_constant_identifier_names: warning
-    - only_throw_errors: warning
-    - overridden_fields: warning
-    - package_api_docs: warning
-    - package_prefixed_library_names: warning
-    - prefer_adjacent_string_concatenation: warning
-    - prefer_collection_literals: warning
-    - prefer_const_constructors: warning
-    - prefer_const_constructors_in_immutables: warning
-    - prefer_const_declarations: warning
-    - prefer_const_literals_to_create_immutables: warning
-    - prefer_conditional_assignment: warning
-    - prefer_contains: warning
-    - prefer_equal_for_default_values: warning
-    - prefer_final_fields: warning
-    - prefer_final_in_for_each: warning
-    - prefer_final_locals: warning
-    - prefer_foreach: warning
-    - prefer_generic_function_type_aliases: warning
-    - prefer_if_elements_to_conditional_expressions: warning
-    - prefer_if_null_operators: warning
-    - prefer_initializing_formals: warning
-    - prefer_inlined_adds: warning
-    - prefer_interpolation_to_compose_strings: warning
-    - prefer_is_empty: warning
-    - prefer_is_not_empty: warning
-    - prefer_iterable_whereType: warning
-    - prefer_null_aware_method_calls: warning
-    - prefer_single_quotes: warning
-    - prefer_spread_collections: warning
-    - require_trailing_commas: warning
-    - sort_child_properties_last: warning
-    - type_annotate_public_apis: warning
-    - type_init_formals: warning
-    - unawaited_futures: warning
-    - unnecessary_brace_in_string_interps: warning
-    - unnecessary_const: warning
-    - unnecessary_getters_setters: warning
-    - unnecessary_lambdas: warning
-    - unnecessary_new: warning
-    - unnecessary_null_aware_assignments: warning
-    - unnecessary_overrides: warning
-    - unnecessary_parenthesis: warning
-    - unnecessary_statements: warning
-    - unnecessary_string_interpolations: warning
-    - unnecessary_this: warning
-    - use_full_hex_values_for_flutter_colors: warning
-    - use_function_type_syntax_for_parameters: warning
-    - use_late_for_private_fields_and_variables: warning
-    - use_raw_strings: warning
-    - use_rethrow_when_possible: warning
-    - use_setters_to_change_properties: warning
-    - use_string_buffers: warning
-    - use_to_and_as_if_applicable: warning
-    - void_checks: warning
+    # === ERROR LEVEL ===
+    avoid_print: error
+    avoid_void_async: error
+    dead_code: error
+    empty_statements: error
+    invariant_booleans: error
+    no_duplicate_case_values: error
+    prefer_void_to_null: error
+    unnecessary_null_checks: error
+    use_build_context_synchronously: error
+    use_key_in_widget_constructors: error
+
+    # === WARNING LEVEL ===
+    always_declare_return_types: warning
+    avoid_dynamic: warning
+    avoid_empty_else: warning
+    avoid_init_to_null: warning
+    avoid_relative_lib_imports: warning
+    cancel_subscriptions: warning
+    close_sinks: warning
+    directives_ordering: warning
+    empty_catches: warning
+    no_logic_in_create_state: warning
+    prefer_const_constructors: warning
+    prefer_final_locals: warning
+    prefer_single_quotes: warning
+    require_trailing_commas: warning
+    unawaited_futures: warning
