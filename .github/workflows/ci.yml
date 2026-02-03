@@ -19,9 +19,13 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
-      - run: flutter pub get
-      - run: flutter analyze --no-fatal-infos
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🔍 Run analyzer
+        run: flutter analyze --no-fatal-infos
 
   test:
     name: 🧪 Tests
@@ -32,19 +36,29 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
-      - run: flutter pub get
-      - run: flutter test
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🧪 Run tests
+        run: flutter test
 
   build:
     name: 🏗️ Build APK
     runs-on: ubuntu-latest
+    # Build sadece main'e push'ta çalışır, PR'larda skip
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
-      - run: flutter pub get
-      - run: flutter build apk --release --split-per-abi
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🏗️ Build APK
+        run: flutter build apk --release --split-per-abi
