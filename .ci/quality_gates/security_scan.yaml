@@ -1,28 +1,172 @@
-// .ci/quality_gates/security_scan.yaml
 # Güvenlik tarama kuralları
-security_checks:
-  dependency_scanning:
-    enabled: true
-    tool: "dart pub outdated"
-    check_for_vulnerabilities: true
+
+# Dependency scanning
+dependency_scanning:
+  enabled: true
+  tools:
+    - name: dart_pub_outdated
+      command: "flutter pub outdated"
+      check_vulnerabilities: true
+    
+    - name: dependency_validator
+      check_unused: true
+      check_overridden: true
   
-  secrets_detection:
+  vulnerability_levels:
+    critical: fail
+    high: fail
+    medium: warn
+    low: info
+
+# Secrets detection
+secrets_detection:
+  enabled: true
+  patterns:
+    - regex: "(?i)(api[_-]?key|apikey)\\s*[:=]\\s*['\"][a-zA-Z0-9_-]{20,}['\"]"
+      message: "Potential API key detected"
+      severity: critical
+    
+    - regex: "(?i)(secret|password|passwd|pwd)\\s*[:=]\\s*['\"][^'\"]{8,}['\"]"
+      message: "Potential secret/password detected"
+      severity: critical
+    
+    - regex: "(?i)(token|auth[_-]?token)\\s*[:=]\\s*['\"][a-zA-Z0-9_-]{20,}['\"]"
+      message: "Potential auth token detected"
+      severity: critical
+    
+    - regex: "(?i)(firebase|google)[_-]?api[_-]?key"
+      message: "Firebase/Google API key pattern detected"
+      severity: high
+    
+    - regex: "(?i)(aws|amazon)[_-]?(access|secret)[_-]?key"
+      message: "AWS credentials pattern detected"
+      severity: critical
+  
+  exclude_files:
+    - "**/*.example"
+    - "**/*.template"
+    - "**/test/**"
+    - "**/.env.example"
+  
+  scan_history: true
+  check_commits: true
+
+# SSL/TLS configuration
+ssl_configuration:
+  require_ssl_pinning: true
+  validate_certificates: true
+  min_tls_version: "1.2"
+  allowed_cipher_suites:
+    - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+  
+  certificate_validation:
+    check_expiry: true
+    check_chain: true
+    check_revocation: false
+
+# Code analysis
+code_analysis:
+  enabled: true
+  checks:
+    - name: sql_injection
+      enabled: true
+      severity: critical
+    
+    - name: xss_vulnerabilities
+      enabled: true
+      severity: high
+    
+    - name: hardcoded_credentials
+      enabled: true
+      severity: critical
+    
+    - name: insecure_random
+      enabled: true
+      severity: medium
+    
+    - name: path_traversal
+      enabled: true
+      severity: high
+    
+    - name: command_injection
+      enabled: true
+      severity: critical
+  
+  custom_rules:
+    - pattern: "dart:io\\.Platform\\.environment"
+      message: "Avoid accessing environment variables directly"
+      severity: warning
+    
+    - pattern: "SharedPreferences.*putString.*password"
+      message: "Do not store passwords in SharedPreferences"
+      severity: critical
+
+# Permission analysis (Android/iOS)
+permission_analysis:
+  android:
+    dangerous_permissions:
+      - "READ_CONTACTS"
+      - "ACCESS_FINE_LOCATION"
+      - "CAMERA"
+      - "RECORD_AUDIO"
+    
+    require_justification: true
+  
+  ios:
+    sensitive_permissions:
+      - "NSCameraUsageDescription"
+      - "NSLocationWhenInUseUsageDescription"
+      - "NSPhotoLibraryUsageDescription"
+    
+    require_justification: true
+
+# Third-party SDK analysis
+third_party_sdks:
+  allowed_sdks:
+    - "firebase_core"
+    - "firebase_auth"
+    - "cloud_firestore"
+    - "dio"
+    - "flutter_riverpod"
+  
+  require_approval: true
+  check_licenses: true
+  track_updates: true
+
+# Data privacy
+data_privacy:
+  pii_detection:
     enabled: true
     patterns:
-      - "API_KEY.*="
-      - "SECRET.*="
-      - "PASSWORD.*="
-      - "TOKEN.*="
-    
-  ssl_configuration:
-    require_ssl_pinning: true
-    validate_certificates: true
-    
-  code_analysis:
-    detect_sql_injection: true
-    detect_xss_vulnerabilities: true
-    detect_hardcoded_credentials: true
+      - "(?i)(email|mail).*@"
+      - "(?i)phone.*\\d{10}"
+      - "(?i)(ssn|social.*security)"
+  
+  encryption:
+    require_at_rest: true
+    require_in_transit: true
+    algorithms:
+      - "AES-256"
+      - "RSA-2048"
 
-scan_frequency: "on_every_push"
-fail_on_critical: true
-fail_on_high: true
+# Scan configuration
+scan_frequency: on_every_push
+parallel_scans: true
+timeout_minutes: 15
+
+# Enforcement
+enforcement:
+  fail_on_critical: true
+  fail_on_high: true
+  fail_on_medium: false
+  block_merge_on_fail: true
+  require_manual_override: true
+
+# Reporting
+reporting:
+  format: sarif
+  output_file: security_report.json
+  create_issues: true
+  notify_security_team: true
+  retention_days: 90
