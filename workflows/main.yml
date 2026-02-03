@@ -1,0 +1,107 @@
+name: 🚀 Main Branch CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FLUTTER_VERSION: "3.16.9"
+
+jobs:
+  validate:
+    name: 🎯 Validate & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 🔍 Run Analyzer
+        run: flutter analyze --no-fatal-infos
+      
+      - name: 🧪 Run Full Test Suite
+        run: |
+          if [ -f ".ci/scripts/run_tests.sh" ]; then
+            bash .ci/scripts/run_tests.sh
+          else
+            flutter test --coverage
+          fi
+      
+      - name: 📊 Generate Coverage
+        run: |
+          if [ -f ".ci/scripts/generate_coverage.sh" ]; then
+            bash .ci/scripts/generate_coverage.sh
+          fi
+      
+      - name: ✅ Quality Gates
+        uses: ./.github/actions/run-quality-gates
+      
+      - name: 📈 Upload Coverage
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
+        with:
+          files: ./coverage/lcov.info
+          flags: main-branch
+          name: main-coverage
+
+  build:
+    name: 🏗️ Build Artifacts
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      matrix:
+        platform: [android]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 🏗️ Build ${{ matrix.platform }}
+        uses: ./.github/actions/build-artifacts
+        with:
+          platform: ${{ matrix.platform }}
+          flavor: production
+      
+      - name: 📤 Upload APK
+        if: matrix.platform == 'android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-main
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+      
+      - name: 📤 Upload Web Build
+        if: matrix.platform == 'web'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build-main
+          path: build/web/
+          retention-days: 30
+
+  notification:
+    name: 📢 Notify Success
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: 🎉 Success Notification
+        run: |
+          echo "✅ Main branch CI/CD completed successfully"
+          echo "📦 Artifacts are ready for deployment"
