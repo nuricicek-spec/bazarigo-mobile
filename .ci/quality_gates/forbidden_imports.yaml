@@ -1,24 +1,79 @@
-// .ci/quality_gates/forbidden_imports.yaml
 # Clean Architecture import kuralları
+
+# Forbidden import patterns
 forbidden_patterns:
-  # Domain layer should not depend on outer layers
+  # Domain layer isolation
   - pattern: "lib/core/domain/.* imports lib/core/application/.*"
     message: "Domain layer should not import Application layer"
+    severity: error
   
   - pattern: "lib/core/domain/.* imports lib/core/infrastructure/.*"
     message: "Domain layer should not import Infrastructure layer"
+    severity: error
   
-  # Features should not import providers directly
+  - pattern: "lib/core/domain/.* imports package:flutter/.*"
+    message: "Domain layer should not depend on Flutter framework"
+    severity: error
+  
+  # Application layer rules
+  - pattern: "lib/core/application/.* imports lib/core/infrastructure/.*"
+    message: "Application should use interfaces, not infrastructure directly"
+    severity: warning
+  
+  # Feature isolation
+  - pattern: "lib/features/[^/]+/.* imports lib/features/[^/]+/.*"
+    message: "Features should not import other features directly"
+    severity: error
+  
   - pattern: "lib/features/.* imports lib/core/providers/.*"
     message: "Features should use dependency injection, not import providers directly"
+    severity: error
   
   # Platform-specific imports
-  - pattern: "import 'dart:io' in web-targeted code"
-    message: "dart:io is not available on web"
+  - pattern: "lib/.*\\.web\\.dart imports dart:io"
+    message: "dart:io is not available on web platform"
+    severity: error
   
-  - pattern: "import 'dart:html' in mobile-targeted code"
-    message: "dart:html is only for web"
+  - pattern: "lib/.*\\.mobile\\.dart imports dart:html"
+    message: "dart:html is only for web platform"
+    severity: error
+  
+  # Security rules
+  - pattern: ".* imports package:http/http.dart(?! as http)"
+    message: "Use Dio for HTTP requests for better error handling"
+    severity: warning
+  
+  # Test rules
+  - pattern: "lib/.* imports package:flutter_test/.*"
+    message: "flutter_test should only be imported in test files"
+    severity: error
 
+# Allowed exceptions (whitelist)
 allowed_exceptions:
-  - "lib/core/infrastructure/.* imports lib/core/domain/.*"  # Infrastructure can import domain
-  - "lib/core/application/.* imports lib/core/domain/.*"     # Application can import domain
+  - pattern: "lib/core/infrastructure/.* imports lib/core/domain/.*"
+    reason: "Infrastructure implements domain interfaces"
+  
+  - pattern: "lib/core/application/.* imports lib/core/domain/.*"
+    reason: "Application uses domain entities and use cases"
+  
+  - pattern: "lib/features/.* imports lib/core/.*"
+    reason: "Features can use core modules"
+  
+  - pattern: "test/.* imports lib/.*"
+    reason: "Tests can import production code"
+
+# Enforcement
+enforcement:
+  enabled: true
+  fail_on_error: true
+  fail_on_warning: false
+  scan_on_commit: true
+
+# Scanning configuration
+scan_config:
+  include_paths:
+    - 'lib/**/*.dart'
+  exclude_paths:
+    - 'lib/**/*.g.dart'
+    - 'lib/**/*.freezed.dart'
+    - 'lib/generated/**'
