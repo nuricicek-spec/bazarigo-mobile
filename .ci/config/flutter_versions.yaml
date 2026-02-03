@@ -1,0 +1,20 @@
+# Flutter version configuration
+versions:
+  stable: "3.16.9"
+  beta: "3.19.0"
+  minimum: "3.13.0"
+  
+# Dart SDK versions
+dart:
+  stable: "3.2.6"
+  minimum: "3.2.0"
+
+# CI/CD specific
+ci:
+  default_version: "3.16.9"
+  cache_enabled: true
+  
+# Version constraints
+constraints:
+  flutter: ">=3.16.0"
+  dart: ">=3.2.0 <4.0.0"
