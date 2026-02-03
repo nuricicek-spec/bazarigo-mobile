@@ -17,15 +17,15 @@ dependencies:
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.5
 
-  # FIREBASE
-  firebase_core: ^2.30.0
-  firebase_auth: ^4.16.0
-  cloud_firestore: ^4.15.0
-  firebase_crashlytics: ^3.3.3
+  # FIREBASE - DART 3.2 COMPATIBLE
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.14.0
+  cloud_firestore: ^4.13.0
+  firebase_crashlytics: ^3.3.0
 
-  # NETWORK
+  # NETWORK - DART 3.2 COMPATIBLE
   dio: ^5.4.0
-  http: ^1.2.0
+  http: ^1.1.2
   connectivity_plus: ^5.0.2
 
   # UTILITIES
