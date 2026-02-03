@@ -3,11 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Unit Tests - Placeholder', () {
     test('Boolean logic operations', () {
-      expect(true, isTrue);
-      expect(false, isFalse);
-      expect(true && true, isTrue);
-      expect(true || false, isTrue);
-      expect(!true, isFalse);
+      // Değişkenler kullanarak sabit ifadeyi önle
+      const boolValue1 = true;
+      const boolValue2 = false;
+      
+      expect(boolValue1, isTrue);
+      expect(boolValue2, isFalse);
+      expect(boolValue1 && boolValue1, isTrue);
+      expect(boolValue1 || boolValue2, isTrue);
+      expect(!boolValue1, isFalse);
     });
 
     test('Null safety checks', () {
