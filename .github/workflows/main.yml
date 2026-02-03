@@ -1,7 +1,14 @@
-name: 🚀 Main Branch CI/CD
+name: 🚀 Main Branch CI
+
+permissions:
+  pull-requests: write
+  contents: read
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
@@ -10,9 +17,9 @@ env:
 
 jobs:
   validate:
-    name: 🎯 Validate & Test
+    name: 🧪 Validate & Build
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     
     steps:
       - name: 📥 Checkout Code
@@ -25,10 +32,21 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
+      - name: 📦 Install lcov (coverage tool)
+        shell: bash
+        run: |
+          if ! command -v lcov &> /dev/null; then
+            echo "Installing lcov..."
+            sudo apt-get update -qq
+            sudo apt-get install -y lcov
+          else
+            echo "lcov already installed"
+          fi
+      
       - name: 🔍 Run Analyzer
         run: flutter analyze --no-fatal-infos
       
-      - name: 🧪 Run Full Test Suite
+      - name: 🧪 Run Tests
         run: |
           if [ -f ".ci/scripts/run_tests.sh" ]; then
             bash .ci/scripts/run_tests.sh
@@ -36,72 +54,39 @@ jobs:
             flutter test --coverage
           fi
       
-      - name: 📊 Generate Coverage
+      - name: 📊 Generate Coverage Report
+        if: success()
         run: |
           if [ -f ".ci/scripts/generate_coverage.sh" ]; then
             bash .ci/scripts/generate_coverage.sh
+          else
+            echo "Coverage script not found, skipping"
           fi
       
-      - name: ✅ Quality Gates
+      - name: ✅ Run Quality Gates
         uses: ./.github/actions/run-quality-gates
       
       - name: 📈 Upload Coverage
+        if: success()
         uses: codecov/codecov-action@v4
         continue-on-error: true
         with:
           files: ./coverage/lcov.info
-          flags: main-branch
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
           name: main-coverage
-
-  build:
-    name: 🏗️ Build Artifacts
-    needs: validate
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
-    strategy:
-      matrix:
-        platform: [android]
-    
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
+          fail_ci_if_error: false
       
-      - name: 🔧 Setup Flutter
-        uses: ./.github/actions/setup-flutter
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-      
-      - name: 🏗️ Build ${{ matrix.platform }}
+      - name: 🏗️ Build Android
+        if: success()
         uses: ./.github/actions/build-artifacts
         with:
-          platform: ${{ matrix.platform }}
+          platform: android
           flavor: production
       
-      - name: 📤 Upload APK
-        if: matrix.platform == 'android'
-        uses: actions/upload-artifact@v4
+      - name: 🏗️ Build Web
+        if: success()
+        uses: ./.github/actions/build-artifacts
         with:
-          name: android-apk-main
-          path: build/app/outputs/flutter-apk/*.apk
-          retention-days: 30
-      
-      - name: 📤 Upload Web Build
-        if: matrix.platform == 'web'
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build-main
-          path: build/web/
-          retention-days: 30
-
-  notification:
-    name: 📢 Notify Success
-    needs: [validate, build]
-    runs-on: ubuntu-latest
-    if: success()
-    
-    steps:
-      - name: 🎉 Success Notification
-        run: |
-          echo "✅ Main branch CI/CD completed successfully"
-          echo "📦 Artifacts are ready for deployment"
+          platform: web
+          flavor: production
