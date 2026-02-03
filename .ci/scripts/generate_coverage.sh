@@ -38,7 +38,8 @@ fi
 # Remove generated files from coverage
 echo -e "${YELLOW}🧹 Removing generated files from coverage...${NC}"
 if command -v lcov &> /dev/null; then
-    lcov --remove coverage/lcov.info \
+    # DEĞİŞİKLİK: --ignore-errors unused ekleyin
+    lcov --ignore-errors unused --remove coverage/lcov.info \
         '**/*.g.dart' \
         '**/*.freezed.dart' \
         '**/*.config.dart' \
@@ -59,8 +60,8 @@ fi
 if command -v lcov &> /dev/null; then
     echo -e "${YELLOW}📈 Calculating coverage...${NC}"
     
-    # Get summary
-    coverage_summary=$(lcov --summary coverage/lcov.info 2>&1)
+    # Get summary - DEĞİŞİKLİK: --ignore-errors unused ekleyin
+    coverage_summary=$(lcov --ignore-errors unused --summary coverage/lcov.info 2>&1)
     
     # Extract line coverage percentage
     coverage_percentage=$(echo "$coverage_summary" | grep -oP 'lines......: \K[0-9.]+' || echo "0")
