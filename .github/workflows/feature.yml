@@ -1,5 +1,10 @@
 name: 🌿 Feature Branch CI
 
+# İZİNLERİ EKLE
+permissions:
+  pull-requests: write
+  contents: read
+
 on:
   push:
     branches:
