@@ -1,23 +1,46 @@
-// lib/main.dart (BASİT VERSİYON)
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'app.dart';
+import 'bootstrap.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Application entry point
+/// Initializes core services and launches the app
+void main() async {
+  // Ensure Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BazariGo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+  // Lock orientation to portrait
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Bootstrap application with error handling
+  try {
+    final bootstrapResult = await bootstrapApp(
+      enableSSL: true,
+      enableCrashlytics: false, // Will be enabled in production
+    );
+
+    // Launch app with ProviderScope for Riverpod
+    runApp(
+      ProviderScope(
+        child: BazarigoApp(
+          bootstrapResult: bootstrapResult,
+        ),
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('🚀 CI Test Başarılı!'),
+    );
+  } catch (error, stackTrace) {
+    // Fallback: Launch minimal app on bootstrap failure
+    debugPrint('❌ Bootstrap failed: $error');
+    debugPrint('Stack trace: $stackTrace');
+
+    runApp(
+      const ProviderScope(
+        child: BazarigoApp(
+          bootstrapResult: null,
         ),
       ),
     );
