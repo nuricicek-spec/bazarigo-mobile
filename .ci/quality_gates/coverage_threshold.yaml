@@ -1,24 +1,57 @@
-// .ci/quality_gates/coverage_threshold.yaml
 # Minimum test coverage requirements
-minimum_coverage: 80%
+minimum_coverage: 80
 
+# Module-specific coverage requirements
 module_specific_coverage:
   core:
-    minimum: 85%
-    critical_modules: ['security/', 'network/']
+    minimum: 85
+    critical_modules:
+      - 'lib/core/security/'
+      - 'lib/core/network/'
+      - 'lib/core/auth/'
     
   features:
-    minimum: 75%
-    auth: 90%
-    listings: 80%
-    admin: 70%
+    minimum: 75
+    modules:
+      auth: 90
+      listings: 80
+      payments: 85
+      admin: 70
+      profile: 75
 
+# File-level coverage
+file_coverage:
+  minimum_per_file: 60
+  critical_files:
+    - 'lib/core/security/*': 95
+    - 'lib/core/network/*': 90
+
+# Coverage exemptions
 exemptions:
-  - generated_code/
-  - test_utils/
-  - mocks/
+  - 'lib/**/*.g.dart'
+  - 'lib/**/*.freezed.dart'
+  - 'lib/**/*.config.dart'
+  - 'lib/generated/**'
+  - 'test/**'
+  - 'lib/**/mock/**'
 
+# Enforcement rules
 enforcement:
   on_pull_request: true
   on_main_branch: true
+  on_release_branch: true
   fail_on_violation: true
+  allow_decrease: false
+
+# Reporting
+reporting:
+  format: lcov
+  output_directory: coverage
+  html_report: true
+  summary_in_pr: true
+
+# Incremental coverage
+incremental:
+  enabled: true
+  minimum_new_code_coverage: 90
+  compare_against: main
