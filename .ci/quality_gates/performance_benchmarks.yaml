@@ -1,28 +1,113 @@
-// .ci/quality_gates/performance_benchmarks.yaml
-# Performans kriterleri
+# Performans kriterleri ve benchmark'lar
+
+# App size limits (bytes)
 app_size_limits:
-  android_apk_max: "50MB"
-  android_aab_max: "100MB"
-  ios_ipa_max: "150MB"
-  web_bundle_max: "10MB"
+  android:
+    apk_max: 52428800        # 50 MB
+    aab_max: 104857600       # 100 MB
+    per_abi_apk_max: 20971520  # 20 MB
+  
+  ios:
+    ipa_max: 157286400       # 150 MB
+    compressed_max: 104857600 # 100 MB
+  
+  web:
+    bundle_max: 10485760     # 10 MB
+    main_js_max: 2097152     # 2 MB
+    assets_max: 5242880      # 5 MB
 
+# Startup performance
 startup_time:
-  cold_start_max: "3s"
-  warm_start_max: "1s"
+  android:
+    cold_start_max_ms: 3000
+    warm_start_max_ms: 1000
+    hot_reload_max_ms: 500
+  
+  ios:
+    cold_start_max_ms: 2500
+    warm_start_max_ms: 800
+    hot_reload_max_ms: 400
+  
+  web:
+    first_paint_max_ms: 1500
+    interactive_max_ms: 3000
 
+# Memory usage limits (MB)
 memory_usage:
-  max_memory_android: "200MB"
-  max_memory_ios: "250MB"
-  max_memory_web: "100MB"
+  android:
+    max_memory_mb: 200
+    max_heap_mb: 150
+    background_max_mb: 50
+  
+  ios:
+    max_memory_mb: 250
+    max_heap_mb: 180
+    background_max_mb: 60
+  
+  web:
+    max_memory_mb: 100
+    max_heap_mb: 80
 
+# Frame rate and jank
 frame_rate:
-  min_fps: "58fps"
-  jank_percentage_max: "2%"
+  min_fps: 58
+  target_fps: 60
+  jank_percentage_max: 2.0
+  dropped_frames_max: 5
+  frame_build_time_max_ms: 16
 
+# Network performance
 network_performance:
-  max_api_response_time: "2s"
-  max_image_load_time: "1s"
+  api_response:
+    max_time_ms: 2000
+    p95_max_ms: 1500
+    timeout_ms: 5000
+  
+  image_loading:
+    max_time_ms: 1000
+    cache_hit_ratio_min: 0.8
+  
+  connection:
+    max_retry_attempts: 3
+    backoff_multiplier: 2
 
+# Build performance
+build_performance:
+  android:
+    clean_build_max_minutes: 10
+    incremental_build_max_minutes: 3
+  
+  ios:
+    clean_build_max_minutes: 15
+    incremental_build_max_minutes: 5
+  
+  web:
+    clean_build_max_minutes: 5
+    incremental_build_max_minutes: 2
+
+# Testing frequency
 testing_frequency:
-  performance_tests_run: "weekly"
-  load_tests_run: "monthly"
+  performance_tests: weekly
+  load_tests: monthly
+  stress_tests: quarterly
+  benchmark_regression: on_every_pr
+
+# Benchmark thresholds
+benchmarks:
+  - name: widget_rendering
+    max_time_ms: 16
+    baseline: 12
+  
+  - name: navigation
+    max_time_ms: 300
+    baseline: 200
+  
+  - name: data_serialization
+    max_time_ms: 50
+    baseline: 30
+
+# Monitoring
+monitoring:
+  track_regression: true
+  compare_against: main
+  fail_on_regression_percentage: 10
