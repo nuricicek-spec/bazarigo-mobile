@@ -33,9 +33,11 @@ run_tests() {
         echo -e "${BLUE}Running $test_name...${NC}"
         
         if [ "$COVERAGE" = "true" ]; then
-            flutter test $test_path --coverage --reporter expanded
+            # Asset yükleme olmadan test çalıştır
+            flutter test --no-test-assets $test_path --coverage --reporter expanded
         else
-            flutter test $test_path --reporter expanded
+            # Asset yükleme olmadan test çalıştır
+            flutter test --no-test-assets $test_path --reporter expanded
         fi
         
         echo -e "${GREEN}✅ $test_name completed${NC}"
@@ -60,7 +62,8 @@ case "$TEST_TYPE" in
         echo -e "${BLUE}🔗 Running Integration Tests Only${NC}"
         if [ -d "integration_test" ]; then
             echo -e "${BLUE}Running Integration Tests...${NC}"
-            flutter test integration_test --reporter expanded
+            # Integration testlerde de asset yükleme olmadan
+            flutter test --no-test-assets integration_test --reporter expanded
             echo -e "${GREEN}✅ Integration Tests completed${NC}"
         else
             echo -e "${YELLOW}⚠️  Integration test directory not found${NC}"
@@ -79,16 +82,19 @@ case "$TEST_TYPE" in
         # All other tests
         if [ "$COVERAGE" = "true" ]; then
             echo -e "${BLUE}🔬 Running remaining tests with coverage...${NC}"
-            flutter test --coverage --reporter expanded --exclude-tags=integration
+            # Asset yükleme olmadan
+            flutter test --no-test-assets --coverage --reporter expanded --exclude-tags=integration
         else
             echo -e "${BLUE}🔬 Running remaining tests...${NC}"
-            flutter test --reporter expanded --exclude-tags=integration
+            # Asset yükleme olmadan
+            flutter test --no-test-assets --reporter expanded --exclude-tags=integration
         fi
         
         # Integration tests (without coverage)
         if [ -d "integration_test" ]; then
             echo -e "${BLUE}🔗 Running Integration Tests...${NC}"
-            flutter test integration_test --reporter expanded
+            # Asset yükleme olmadan
+            flutter test --no-test-assets integration_test --reporter expanded
             echo -e "${GREEN}✅ Integration Tests completed${NC}"
         fi
         ;;
