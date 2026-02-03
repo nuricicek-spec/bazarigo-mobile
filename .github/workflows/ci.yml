@@ -11,34 +11,40 @@ env:
 
 jobs:
   analyze:
-    name: "🎯 Analyze"
+    name: 🎯 Analyze
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
 
   test:
-    name: "🧪 Tests"
+    name: 🧪 Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+
       - run: flutter pub get
       - run: flutter test
 
   build:
-    name: "🏗️ Build"
+    name: 🏗️ Build APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+
       - run: flutter pub get
       - run: flutter build apk --release --split-per-abi
