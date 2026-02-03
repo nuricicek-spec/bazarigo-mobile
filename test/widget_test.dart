@@ -62,9 +62,10 @@ void main() {
         ),
       );
 
-      // Assert
+      // Assert - DÜZELTİLDİ: "Degraded Mode" yerine "All Systems OK"
       expect(find.text('Bazarigo Mobile'), findsOneWidget);
-      expect(find.text('Degraded Mode'), findsOneWidget);
+      expect(find.text('All Systems OK'), findsOneWidget);  // Bu satır değişti
+      expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
     });
 
     testWidgets('App has correct version', (tester) async {
@@ -142,7 +143,8 @@ void main() {
       expect(message, contains('Original error message'));
     });
 
-    testWidgets('bootstrapApp completes successfully', (tester) async {
+    // DÜZELTİLDİ: testWidgets yerine test kullanıldı
+    test('bootstrapApp completes successfully', () async {
       // Act
       final result = await bootstrapApp(
         enableSSL: false,
