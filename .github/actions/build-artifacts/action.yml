@@ -1,0 +1,61 @@
+name: 'Build Artifacts'
+description: 'Build platform-specific artifacts'
+
+inputs:
+  platform:
+    description: 'Platform to build (android, ios, web)'
+    required: true
+  
+  flavor:
+    description: 'Build flavor (dev, staging, production)'
+    required: false
+    default: 'production'
+  
+  build-number:
+    description: 'Build number'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🏗️ Build ${{ inputs.platform }} - ${{ inputs.flavor }}
+      shell: bash
+      run: |
+        echo "Building for platform: ${{ inputs.platform }}"
+        echo "Flavor: ${{ inputs.flavor }}"
+        
+        case "${{ inputs.platform }}" in
+          android)
+            if [ -f ".ci/scripts/build_android.sh" ]; then
+              bash .ci/scripts/build_android.sh
+            else
+              flutter build apk --release --split-per-abi
+            fi
+            ;;
+          
+          ios)
+            if [ -f ".ci/scripts/build_ios.sh" ]; then
+              bash .ci/scripts/build_ios.sh
+            else
+              echo "iOS build requires macOS runner"
+            fi
+            ;;
+          
+          web)
+            if [ -f ".ci/scripts/build_web.sh" ]; then
+              bash .ci/scripts/build_web.sh
+            else
+              flutter build web --release
+            fi
+            ;;
+          
+          *)
+            echo "Unknown platform: ${{ inputs.platform }}"
+            exit 1
+            ;;
+        esac
+    
+    - name: ✅ Build Complete
+      shell: bash
+      run: echo "✅ ${{ inputs.platform }} build completed successfully"
