@@ -19,7 +19,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-    - "**/*.config.g.dart"
+    - "**/*.config.dart"
     - "build/**"
     - ".dart_tool/**"
     - ".pub/**"
