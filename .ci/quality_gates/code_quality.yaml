@@ -1,25 +1,52 @@
-// .ci/quality_gates/code_quality.yaml
 # Kod kalite standartları
 linting:
   tool: "flutter analyze"
   max_allowed_issues: 5
   fail_on_warning: true
+  severity_levels:
+    error: fail
+    warning: fail
+    info: allow
 
 code_metrics:
   max_lines_per_file: 500
   max_method_lines: 50
   max_parameters: 5
   max_nesting_level: 3
+  max_class_count_per_file: 3
 
 documentation:
   public_api_documentation: true
-  minimum_documentation_percentage: 30%
+  minimum_documentation_percentage: 30
+  required_for:
+    - public_classes
+    - public_methods
+    - public_functions
 
 complexity:
   max_cyclomatic_complexity: 15
   max_maintainability_index: 85
+  max_cognitive_complexity: 20
 
 style:
   enforce_null_safety: true
   prefer_const_constructors: true
   avoid_dynamic: true
+  require_trailing_commas: true
+  prefer_single_quotes: true
+
+# Analyzer configuration
+analyzer_options:
+  strong_mode: true
+  implicit_casts: false
+  implicit_dynamic: false
+
+# Custom rules
+custom_rules:
+  - name: "no_print_statements"
+    severity: error
+    message: "Use proper logging instead of print()"
+  
+  - name: "no_todo_comments"
+    severity: warning
+    message: "TODO comments should be tracked in issue tracker"
