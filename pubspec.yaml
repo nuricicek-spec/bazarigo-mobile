@@ -55,6 +55,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
 
+  # LINTING - ÖNEMLİ: package olarak eklendi
   flutter_lints: ^3.0.0
 
   # CODE GENERATION
@@ -78,9 +79,6 @@ flutter:
         - asset: assets/fonts/RobotoMono-Bold.ttf
           weight: 700
 
-  assets:
-    - assets/images/
-    - assets/icons/
-    - assets/fonts/
-    - assets/lang/
-    - assets/certs/
+  # SADECE MEVCUT OLAN ASSET'LER (boş dizinler kaldırıldı)
+  # assets:
+  #   - assets/images/
