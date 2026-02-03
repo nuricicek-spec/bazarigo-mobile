@@ -34,6 +34,18 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
+      # YENİ ADIM: lcov'u önceden kur
+      - name: 📦 Install lcov (coverage tool)
+        shell: bash
+        run: |
+          if ! command -v lcov &> /dev/null; then
+            echo "Installing lcov..."
+            sudo apt-get update -qq
+            sudo apt-get install -y lcov
+          else
+            echo "lcov already installed"
+          fi
+      
       - name: 🔍 Run Analyzer
         run: flutter analyze --no-fatal-infos
       
