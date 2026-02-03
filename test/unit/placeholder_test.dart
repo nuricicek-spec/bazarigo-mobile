@@ -3,13 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Unit Tests - Placeholder', () {
     test('Boolean logic operations', () {
-      // Değişkenler kullanarak sabit ifadeyi önle
-      const boolValue1 = true;
-      const boolValue2 = false;
+      // Değişkenleri const olmadan tanımla
+      bool boolValue1 = true;
+      bool boolValue2 = false;
       
       expect(boolValue1, isTrue);
       expect(boolValue2, isFalse);
       expect(boolValue1 && boolValue1, isTrue);
+      // OR işlemini test etmek için dinamik değişkenler kullan
       expect(boolValue1 || boolValue2, isTrue);
       expect(!boolValue1, isFalse);
     });
