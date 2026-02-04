@@ -20,7 +20,7 @@ env:
 
 jobs:
   release:
-    name: 🚀 Create Release
+    name: 🚀 Create Release (Android/Web)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     
@@ -80,7 +80,6 @@ jobs:
           name: release-coverage
           fail_ci_if_error: false
       
-      # 🆕 YENİ: Build öncesi cache temizleme
       - name: 🧹 Clean Build Cache (Android)
         if: success()
         shell: bash
@@ -93,7 +92,6 @@ jobs:
           platform: android
           flavor: production
       
-      # 🆕 YENİ: Build öncesi cache temizleme
       - name: 🧹 Clean Build Cache (Web)
         if: success()
         shell: bash
@@ -116,3 +114,32 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-ios:
+    name: 🍏 Build iOS (Release)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 📦 Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+      
+      - name: 🔧 Install iOS Dependencies
+        run: |
+          cd ios
+          pod install
+      
+      - name: 🏗️ Build iOS (Release Simulator)
+        run: |
+          flutter build ios --simulator --release --no-codesign
