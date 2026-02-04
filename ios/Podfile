@@ -1,5 +1,4 @@
-# Beginning of Podfile
-
+# Podfile
 platform :ios, '12.0'
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -37,7 +36,6 @@ target 'Runner' do
   pod 'Firebase/Auth'
   pod 'Firebase/Firestore'
   pod 'Firebase/Crashlytics'
-  
 end
 
 post_install do |installer|
