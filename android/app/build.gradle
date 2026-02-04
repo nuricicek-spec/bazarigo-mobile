@@ -4,11 +4,12 @@ def localPropertiesFile = rootProject.file('local.properties')
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-// KRİTİK EKSİK SATIR:
-apply plugin: 'com.google.gms.google-services'  // <--- BU SATIRI EKLE!
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 34
+
+    namespace "com.example.bazarigo"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -28,18 +29,28 @@ android {
         multiDexEnabled true
     }
 
-    // CI için FLAVOR tanımla (bundleProductionRelease için)
     flavorDimensions "default"
     productFlavors {
-        production {  // <--- BU FLAVOR CI'DA ARANIYOR
+        production {
             dimension "default"
+            applicationId "com.example.bazarigo"
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
+            shrinkResources false
         }
     }
 }
