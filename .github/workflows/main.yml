@@ -36,11 +36,8 @@ jobs:
         shell: bash
         run: |
           if ! command -v lcov &> /dev/null; then
-            echo "Installing lcov..."
             sudo apt-get update -qq
             sudo apt-get install -y lcov
-          else
-            echo "lcov already installed"
           fi
       
       - name: 🔍 Run Analyzer
@@ -106,6 +103,7 @@ jobs:
     runs-on: macos-latest
     needs: validate
     if: ${{ needs.validate.result == 'success' }}
+    timeout-minutes: 90
     
     steps:
       - name: 📥 Checkout Code
@@ -121,61 +119,60 @@ jobs:
           echo "Recreating iOS project..."
           rm -rf ios
           flutter create --platforms=ios --org com.bazarigo.app .
+          chmod -R 755 ios
       
       - name: 📁 Create Firebase config from secrets
         run: |
-          cat > ios/Runner/GoogleService-Info.plist << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>API_KEY</key>
-    <string>${{ secrets.FIREBASE_API_KEY }}</string>
-    <key>GCM_SENDER_ID</key>
-    <string>${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}</string>
-    <key>PLIST_VERSION</key>
-    <string>1</string>
-    <key>BUNDLE_ID</key>
-    <string>com.bazarigo.app</string>
-    <key>PROJECT_ID</key>
-    <string>${{ secrets.FIREBASE_PROJECT_ID }}</string>
-    <key>STORAGE_BUCKET</key>
-    <string>${{ secrets.FIREBASE_STORAGE_BUCKET }}</string>
-    <key>IS_ADS_ENABLED</key>
-    <false/>
-    <key>IS_ANALYTICS_ENABLED</key>
-    <false/>
-    <key>IS_APPINVITE_ENABLED</key>
-    <true/>
-    <key>IS_GCM_ENABLED</key>
-    <true/>
-    <key>IS_SIGNIN_ENABLED</key>
-    <true/>
-    <key>GOOGLE_APP_ID</key>
-    <string>${{ secrets.FIREBASE_APP_ID }}</string>
-</dict>
-</plist>
-EOF
+          mkdir -p ios/Runner
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/Runner/GoogleService-Info.plist
+          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> ios/Runner/GoogleService-Info.plist
+          echo '<plist version="1.0">' >> ios/Runner/GoogleService-Info.plist
+          echo '<dict>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>API_KEY</key>' >> ios/Runner/GoogleService-Info.plist
+          echo "    <string>${{ secrets.FIREBASE_API_KEY }}</string>" >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>GCM_SENDER_ID</key>' >> ios/Runner/GoogleService-Info.plist
+          echo "    <string>${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}</string>" >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>PLIST_VERSION</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <string>1</string>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>BUNDLE_ID</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <string>com.bazarigo.app</string>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>PROJECT_ID</key>' >> ios/Runner/GoogleService-Info.plist
+          echo "    <string>${{ secrets.FIREBASE_PROJECT_ID }}</string>" >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>STORAGE_BUCKET</key>' >> ios/Runner/GoogleService-Info.plist
+          echo "    <string>${{ secrets.FIREBASE_STORAGE_BUCKET }}</string>" >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>IS_ADS_ENABLED</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <false/>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>IS_ANALYTICS_ENABLED</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <false/>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>IS_APPINVITE_ENABLED</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <true/>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>IS_GCM_ENABLED</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <true/>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>IS_SIGNIN_ENABLED</key>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <true/>' >> ios/Runner/GoogleService-Info.plist
+          echo '    <key>GOOGLE_APP_ID</key>' >> ios/Runner/GoogleService-Info.plist
+          echo "    <string>${{ secrets.FIREBASE_APP_ID }}</string>" >> ios/Runner/GoogleService-Info.plist
+          echo '</dict>' >> ios/Runner/GoogleService-Info.plist
+          echo '</plist>' >> ios/Runner/GoogleService-Info.plist
       
       - name: 📝 Update AppDelegate.swift
         run: |
-          cat > ios/Runner/AppDelegate.swift << 'EOF'
-import UIKit
-import Flutter
-import FirebaseCore
-
-@UIApplicationMain
-class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    FirebaseApp.configure()
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-EOF
+          mkdir -p ios/Runner
+          echo 'import UIKit' > ios/Runner/AppDelegate.swift
+          echo 'import Flutter' >> ios/Runner/AppDelegate.swift
+          echo 'import FirebaseCore' >> ios/Runner/AppDelegate.swift
+          echo '' >> ios/Runner/AppDelegate.swift
+          echo '@UIApplicationMain' >> ios/Runner/AppDelegate.swift
+          echo 'class AppDelegate: FlutterAppDelegate {' >> ios/Runner/AppDelegate.swift
+          echo '  override func application(' >> ios/Runner/AppDelegate.swift
+          echo '    _ application: UIApplication,' >> ios/Runner/AppDelegate.swift
+          echo '    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?' >> ios/Runner/AppDelegate.swift
+          echo '  ) -> Bool {' >> ios/Runner/AppDelegate.swift
+          echo '    FirebaseApp.configure()' >> ios/Runner/AppDelegate.swift
+          echo '    GeneratedPluginRegistrant.register(with: self)' >> ios/Runner/AppDelegate.swift
+          echo '    return super.application(application, didFinishLaunchingWithOptions: launchOptions)' >> ios/Runner/AppDelegate.swift
+          echo '  }' >> ios/Runner/AppDelegate.swift
+          echo '}' >> ios/Runner/AppDelegate.swift
       
       - name: 📦 Install CocoaPods
         run: |
