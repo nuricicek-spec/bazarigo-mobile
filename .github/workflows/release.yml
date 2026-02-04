@@ -262,7 +262,7 @@ EOF
       
       - name: 📦 Install CocoaPods
         run: |
-          sudo gem install cocoaPods -v 1.14.3
+          sudo gem install cocoapods -v 1.14.3
       
       - name: 🔧 Install iOS Dependencies
         run: |
