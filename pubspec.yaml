@@ -1,3 +1,12 @@
+name: bazarigo_mobile
+description: Bazarigo Production Marketplace Enterprise Edition
+publish_to: 'none'
+version: 4.0.3+100
+
+environment:
+  sdk: '^3.2.0'        # DÜZELTİLDİ: ">=3.2.0 <4.0.0" yerine '^3.2.0'
+  flutter: '^3.16.0'    # DÜZELTİLDİ: ">=3.16.0" yerine '^3.16.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -8,15 +17,15 @@ dependencies:
   flutter_riverpod: ^2.4.9
   riverpod_annotation: ^2.3.5
 
-  # FIREBASE - DART 3.2 UYUMLU (DÜZELTİLDİ!)
-  firebase_core: ^2.27.0    # 2.28.0'dan 2.27.0'a DÜŞTÜ
-  firebase_auth: ^4.13.0    # 4.14.0'dan 4.13.0'a DÜŞTÜ
-  cloud_firestore: ^4.12.0  # 4.13.0'dan 4.12.0'a DÜŞTÜ
+  # FIREBASE - DART 3.2 COMPATIBLE (DÜZELTİLDİ!)
+  firebase_core: ^2.27.0     # 2.28.0 → 2.27.0
+  firebase_auth: ^4.13.0     # 4.14.0 → 4.13.0
+  cloud_firestore: ^4.12.0   # 4.13.0 → 4.12.0
   firebase_crashlytics: ^3.3.0
 
-  # NETWORK - DART 3.2 UYUMLU
+  # NETWORK - DART 3.2 COMPATIBLE
   dio: ^5.4.0
-  http: ^1.1.2             # BU KALSIN
+  http: ^1.1.2
   connectivity_plus: ^5.0.2
 
   # UTILITIES
@@ -39,3 +48,38 @@ dependencies:
   # SYSTEM
   synchronized: ^3.0.0
   universal_io: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  # LINTING
+  flutter_lints: ^3.0.0
+
+  # CODE GENERATION
+  riverpod_generator: ^2.3.7
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+
+  # TESTING
+  test: ^1.24.0
+  mocktail: ^1.0.3
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/RobotoMono-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+          weight: 700
+
+  # Assets will be added as needed
+  # assets:
+  #   - assets/images/
