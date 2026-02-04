@@ -77,12 +77,24 @@ jobs:
           name: main-coverage
           fail_ci_if_error: false
       
+      # 🆕 YENİ: Build öncesi cache temizleme
+      - name: 🧹 Clean Build Cache (Android)
+        if: success()
+        shell: bash
+        run: flutter clean
+      
       - name: 🏗️ Build Android
         if: success()
         uses: ./.github/actions/build-artifacts
         with:
           platform: android
           flavor: production
+      
+      # 🆕 YENİ: Build öncesi cache temizleme
+      - name: 🧹 Clean Build Cache (Web)
+        if: success()
+        shell: bash
+        run: flutter clean
       
       - name: 🏗️ Build Web
         if: success()
