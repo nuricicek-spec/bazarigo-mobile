@@ -115,11 +115,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-build-ios:
-  name: 🍏 Build iOS (Release)
-  runs-on: macos-latest
-  needs: release  # ✅ BU SATIRI EKLE!
-  if: success()   # ✅ Sadece release başarılıysa çalışsın
+  build-ios:
+    name: 🍏 Build iOS (Release)
+    runs-on: macos-latest
+    needs: release
+    if: ${{ needs.release.result == 'success' }}  # ✅ DOĞRU
     
     steps:
       - name: 📥 Checkout Code
