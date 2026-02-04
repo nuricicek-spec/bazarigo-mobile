@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "27693224000",
+    "project_id": "bazarigo-1876d",
+    "storage_bucket": "bazarigo-1876d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27693224000:android:73139d5d9ccb618025cfa5",
+        "android_client_info": {
+          "package_name": "com.bazarigo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyF9FJPonJK61cnRmRkm12Ft3g5jqJ_OA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
