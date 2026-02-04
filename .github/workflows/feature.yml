@@ -21,6 +21,12 @@ jobs:
     name: 🎯 Validate Feature
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
+  build-ios:
+    name: 🍏 Build iOS (Feature)
+    runs-on: macos-latest
+    needs: validate
+    if: ${{ needs.validate.result == 'success' }}
     
     steps:
       - name: 📥 Checkout Code
