@@ -105,7 +105,7 @@ jobs:
     name: 🍏 Build iOS
     runs-on: macos-latest
     needs: validate  # ✅ BU SATIRI EKLE!
-    if: success()   # ✅ Sadece validate başarılıysa çalışsın
+    if: ${{ needs.validate.result == 'success' }}  # ✅ DOĞRU KULLANIM
     
     steps:
       - name: 📥 Checkout Code
