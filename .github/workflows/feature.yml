@@ -18,7 +18,7 @@ env:
 
 jobs:
   validate:
-    name: 🎯 Validate Feature
+    name: 🎯 Validate Feature (Android/Web)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     
@@ -111,3 +111,92 @@ jobs:
               repo: context.repo.repo,
               body: '✅ Feature validation passed! Ready for review.'
             })
+
+  build-ios:
+    name: 🍏 Build iOS (Feature)
+    runs-on: macos-latest
+    needs: validate
+    if: ${{ needs.validate.result == 'success' }}
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 🔄 Recreate iOS project
+        run: |
+          echo "Recreating iOS project..."
+          rm -rf ios
+          flutter create --platforms=ios --org com.bazarigo.app .
+      
+      - name: 📁 Create Firebase config from secrets
+        run: |
+          cat > ios/Runner/GoogleService-Info.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>API_KEY</key>
+    <string>${{ secrets.FIREBASE_API_KEY }}</string>
+    <key>GCM_SENDER_ID</key>
+    <string>${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}</string>
+    <key>PLIST_VERSION</key>
+    <string>1</string>
+    <key>BUNDLE_ID</key>
+    <string>com.bazarigo.app</string>
+    <key>PROJECT_ID</key>
+    <string>${{ secrets.FIREBASE_PROJECT_ID }}</string>
+    <key>STORAGE_BUCKET</key>
+    <string>${{ secrets.FIREBASE_STORAGE_BUCKET }}</string>
+    <key>IS_ADS_ENABLED</key>
+    <false/>
+    <key>IS_ANALYTICS_ENABLED</key>
+    <false/>
+    <key>IS_APPINVITE_ENABLED</key>
+    <true/>
+    <key>IS_GCM_ENABLED</key>
+    <true/>
+    <key>IS_SIGNIN_ENABLED</key>
+    <true/>
+    <key>GOOGLE_APP_ID</key>
+    <string>${{ secrets.FIREBASE_APP_ID }}</string>
+</dict>
+</plist>
+EOF
+      
+      - name: 📝 Update AppDelegate.swift
+        run: |
+          cat > ios/Runner/AppDelegate.swift << 'EOF'
+import UIKit
+import Flutter
+import FirebaseCore
+
+@UIApplicationMain
+class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    FirebaseApp.configure()
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+EOF
+      
+      - name: 📦 Install CocoaPods
+        run: |
+          sudo gem install cocoapods -v 1.14.3
+      
+      - name: 🔧 Install iOS Dependencies
+        run: |
+          cd ios
+          arch -x86_64 pod install --repo-update
+      
+      - name: 🏗️ Build iOS (Simulator)
+        run: |
+          flutter build ios --simulator --no-codesign --verbose
