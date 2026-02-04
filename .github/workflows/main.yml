@@ -17,7 +17,7 @@ env:
 
 jobs:
   validate:
-    name: 🧪 Validate & Build
+    name: 🧪 Validate & Build (Android/Web)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
@@ -77,7 +77,6 @@ jobs:
           name: main-coverage
           fail_ci_if_error: false
       
-      # 🆕 YENİ: Build öncesi cache temizleme
       - name: 🧹 Clean Build Cache (Android)
         if: success()
         shell: bash
@@ -90,7 +89,6 @@ jobs:
           platform: android
           flavor: production
       
-      # 🆕 YENİ: Build öncesi cache temizleme
       - name: 🧹 Clean Build Cache (Web)
         if: success()
         shell: bash
@@ -102,3 +100,32 @@ jobs:
         with:
           platform: web
           flavor: production
+
+  build-ios:
+    name: 🍏 Build iOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 📦 Install CocoaPods
+        run: |
+          sudo gem install cocoapods
+      
+      - name: 🔧 Install iOS Dependencies
+        run: |
+          cd ios
+          pod install
+      
+      - name: 🏗️ Build iOS (Simulator)
+        run: |
+          flutter build ios --simulator --no-codesign
