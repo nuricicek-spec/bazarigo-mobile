@@ -7,16 +7,32 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     compileSdkVersion 34
+
+    // 1. JAVA 8 DESTEĞİ (Firebase için zorunlu)
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     defaultConfig {
         applicationId "com.example.bazarigo"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 100
         versionName "4.0.3"
+        
+        // 2. MULTIDEX (Enterprise projeler için zorunlu)
+        multiDexEnabled true
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.debug
+            minifyEnabled false  // Production'da true yapılacak
         }
     }
 }
@@ -26,5 +42,7 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0"
+    // 3. KOTLIN ve MULTIDEX BAĞIMLILIKLARI
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0"  // jdk7 → jdk8
+    implementation 'androidx.multidex:multidex:2.0.1'  // MultiDex runtime
 }
