@@ -104,7 +104,8 @@ jobs:
   build-ios:
     name: 🍏 Build iOS
     runs-on: macos-latest
-    timeout-minutes: 40
+    needs: validate  # ✅ BU SATIRI EKLE!
+    if: success()   # ✅ Sadece validate başarılıysa çalışsın
     
     steps:
       - name: 📥 Checkout Code
