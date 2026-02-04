@@ -14,6 +14,10 @@ echo -e "${GREEN}🧪 Running Tests...${NC}"
 TEST_TYPE=${1:-all}  # all, unit, widget, integration
 COVERAGE=${2:-true}
 
+# YENİ SATIR: Build cache temizle
+echo -e "${YELLOW}🧹 Cleaning build cache...${NC}"
+flutter clean
+
 # Ensure dependencies are installed
 echo -e "${YELLOW}📦 Ensuring dependencies...${NC}"
 flutter pub get
