@@ -119,7 +119,7 @@ jobs:
     name: 🍏 Build iOS (Release)
     runs-on: macos-latest
     needs: release
-    if: ${{ needs.release.result == 'success' }}  # ✅ DOĞRU
+    if: ${{ needs.release.result == 'success' }}
     
     steps:
       - name: 📥 Checkout Code
@@ -262,7 +262,7 @@ EOF
       
       - name: 📦 Install CocoaPods
         run: |
-          sudo gem install cocoapods -v 1.14.3
+          sudo gem install cocoaPods -v 1.14.3
       
       - name: 🔧 Install iOS Dependencies
         run: |
