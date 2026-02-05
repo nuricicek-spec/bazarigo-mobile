@@ -1,0 +1,59 @@
+# Android
+android/.gradle/
+android/.idea/
+android/local.properties
+android/**/build/
+android/**/proguard/
+android/captures/
+android/*.iml
+android/*.keystore
+
+# iOS
+ios/**/*.mode1v3
+ios/**/*.mode2v3
+ios/**/*.moved-aside
+ios/**/*.pbxuser
+ios/**/*.perspectivev3
+ios/**/*sync/
+ios/**/.sconsign.dblite
+ios/**/.tags*
+ios/**/.vagrant/
+ios/**/DerivedData/
+ios/**/Icon?
+ios/**/Pods/
+ios/**/.symlinks/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+fvm/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# NOT: Aşağıdaki dosyalar IGNORE EDİLMEMELİ:
+# - android/gradle/wrapper/
+# - android/gradlew
+# - android/gradlew.bat
+# - android/gradle/wrapper/gradle-wrapper.jar
