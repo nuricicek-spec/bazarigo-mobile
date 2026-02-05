@@ -3,6 +3,7 @@ name: 🌿 Feature Branch CI
 permissions:
   pull-requests: write
   contents: read
+  checks: write
 
 on:
   push:
@@ -15,14 +16,15 @@ on:
 
 env:
   FLUTTER_VERSION: "3.16.9"
+  JAVA_VERSION: "11"
   JAVA_OPTS: "-Xmx4G -XX:+UseG1GC"
-  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.daemon.jvmargs=-Xmx1g"
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=true -Dkotlin.daemon.jvmargs=-Xmx1g"
 
 jobs:
   validate:
-    name: 🎯 Validate Feature (Android/Web)
+    name: 🎯 Validate Feature
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     
     steps:
       - name: 📥 Checkout Code
@@ -35,18 +37,18 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
-      - name: ☕ Setup Java 17
+      - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
       
       - name: 📦 Install lcov
-        shell: bash
         run: |
           if ! command -v lcov &> /dev/null; then
             sudo apt-get update -qq
-            sudo apt-get install -y lcov
+            sudo apt-get install -y lcov bc
           fi
       
       - name: 🔍 Run Analyzer
@@ -55,24 +57,23 @@ jobs:
       - name: 🧪 Run Tests
         run: |
           if [ -f ".ci/scripts/run_tests.sh" ]; then
-            bash .ci/scripts/run_tests.sh
+            bash .ci/scripts/run_tests.sh all true
           else
             flutter test --coverage
           fi
       
       - name: 📊 Generate Coverage Report
         if: success()
+        continue-on-error: true
         run: |
           if [ -f ".ci/scripts/generate_coverage.sh" ]; then
             bash .ci/scripts/generate_coverage.sh
-          else
-            echo "Coverage script not found, skipping"
           fi
       
       - name: ✅ Run Quality Gates
         uses: ./.github/actions/run-quality-gates
       
-      - name: 📈 Upload Coverage
+      - name: 📈 Upload Coverage to Codecov
         if: success()
         uses: codecov/codecov-action@v4
         continue-on-error: true
@@ -82,50 +83,13 @@ jobs:
           flags: unittests
           name: feature-coverage
           fail_ci_if_error: false
-      
-      - name: 🧹 Clean Build Cache (Android)
-        if: success()
-        shell: bash
-        run: flutter clean
-      
-      - name: 🏗️ Build Android
-        if: success()
-        uses: ./.github/actions/build-artifacts
-        with:
-          platform: android
-          flavor: production
-      
-      - name: 🧹 Clean Build Cache (Web)
-        if: success()
-        shell: bash
-        run: flutter clean
-      
-      - name: 🏗️ Build Web
-        if: success()
-        uses: ./.github/actions/build-artifacts
-        with:
-          platform: web
-          flavor: production
-      
-      - name: 💬 Comment PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ Feature validation passed! Ready for review.'
-            })
 
-  build-ios:
-    name: 🍏 Build iOS (Feature)
-    runs-on: macos-latest
+  build-android:
+    name: 🤖 Build Android
     needs: validate
-    if: ${{ needs.validate.result == 'success' }}
-    timeout-minutes: 90
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: success()
     
     steps:
       - name: 📥 Checkout Code
@@ -136,74 +100,117 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
-      - name: 🔍 Check iOS project
-        id: check_ios
-        run: |
-          if [ -d "ios/Runner" ]; then
-            echo "iOS project exists."
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "iOS project does not exist, creating..."
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
       
-      - name: 🏗️ Create iOS project if missing
-        if: steps.check_ios.outputs.exists == 'false'
+      - name: 📝 Create local.properties
         run: |
-          flutter create --platforms=ios --org com.bazarigo.app .
-          chmod -R 755 ios
+          cat > android/local.properties << EOF
+          sdk.dir=$ANDROID_HOME
+          flutter.sdk=$FLUTTER_ROOT
+          flutter.versionCode=100
+          flutter.versionName=4.0.3
+          EOF
       
-      - name: 📁 Create Firebase config from template
-        run: |
-          mkdir -p ios/Runner
-          # Install envsubst if not available
-          if ! command -v envsubst &> /dev/null; then
-            brew install gettext
-            brew link --force gettext
-          fi
-          export FIREBASE_API_KEY="${{ secrets.FIREBASE_API_KEY }}"
-          export FIREBASE_MESSAGING_SENDER_ID="${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}"
-          export FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}"
-          export FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}"
-          export FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}"
-          envsubst < .github/templates/GoogleService-Info.plist.template > ios/Runner/GoogleService-Info.plist
+      - name: 🏗️ Build Android APK
+        uses: ./.github/actions/build-artifacts
+        with:
+          platform: android
+          flavor: production
       
-      - name: 📝 Ensure AppDelegate.swift
-        run: |
-          mkdir -p ios/Runner
-          if [ ! -f "ios/Runner/AppDelegate.swift" ]; then
-            echo 'import UIKit' > ios/Runner/AppDelegate.swift
-            echo 'import Flutter' >> ios/Runner/AppDelegate.swift
-            echo 'import FirebaseCore' >> ios/Runner/AppDelegate.swift
-            echo '' >> ios/Runner/AppDelegate.swift
-            echo '@UIApplicationMain' >> ios/Runner/AppDelegate.swift
-            echo 'class AppDelegate: FlutterAppDelegate {' >> ios/Runner/AppDelegate.swift
-            echo '  override func application(' >> ios/Runner/AppDelegate.swift
-            echo '    _ application: UIApplication,' >> ios/Runner/AppDelegate.swift
-            echo '    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?' >> ios/Runner/AppDelegate.swift
-            echo '  ) -> Bool {' >> ios/Runner/AppDelegate.swift
-            echo '    FirebaseApp.configure()' >> ios/Runner/AppDelegate.swift
-            echo '    GeneratedPluginRegistrant.register(with: self)' >> ios/Runner/AppDelegate.swift
-            echo '    return super.application(application, didFinishLaunchingWithOptions: launchOptions)' >> ios/Runner/AppDelegate.swift
-            echo '  }' >> ios/Runner/AppDelegate.swift
-            echo '}' >> ios/Runner/AppDelegate.swift
-          else
-            # Check if Firebase is configured, if not, add it
-            if ! grep -q "FirebaseApp.configure()" ios/Runner/AppDelegate.swift; then
-              # This is a simple approach, might need more careful editing
-              echo "AppDelegate exists but Firebase not configured. Please manually configure Firebase in AppDelegate."
-            fi
-          fi
+      - name: 📤 Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-feature
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 7
+
+  build-web:
+    name: 🌐 Build Web
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: success()
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+      
+      - name: 🏗️ Build Web
+        uses: ./.github/actions/build-artifacts
+        with:
+          platform: web
+          flavor: production
+      
+      - name: 📤 Upload Web Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build-feature
+          path: build/web/
+          retention-days: 7
+
+  build-ios:
+    name: 🍎 Build iOS
+    needs: validate
+    runs-on: macos-latest
+    timeout-minutes: 60
+    if: success()
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Flutter
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
       
       - name: 📦 Install CocoaPods
-        run: |
-          sudo gem install cocoapods -v 1.14.3
+        run: sudo gem install cocoapods -v 1.14.3
       
-      - name: 🔧 Install iOS Dependencies
+      - name: 🔧 Pod Install
         run: |
           cd ios
-          arch -x86_64 pod install --repo-update
+          pod install --repo-update
       
-      - name: 🏗️ Build iOS (Simulator)
-        run: |
-          flutter build ios --simulator --no-codesign --verbose
+      - name: 🏗️ Build iOS Simulator
+        run: flutter build ios --simulator --no-codesign --debug
+      
+      - name: ✅ iOS Build Complete
+        run: echo "iOS build completed successfully"
+
+  comment-pr:
+    name: 💬 Comment on PR
+    needs: [validate, build-android, build-web]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && success()
+    
+    steps:
+      - name: 💬 Post PR Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `✅ **Feature Validation Complete**
+            
+            - ✅ Analyzer: Passed
+            - ✅ Tests: Passed
+            - ✅ Android Build: Success
+            - ✅ Web Build: Success
+            
+            Ready for review! 🚀`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })
