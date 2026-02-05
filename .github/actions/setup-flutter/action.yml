@@ -132,13 +132,22 @@ runs:
           cp /tmp/Info.plist.backup ios/Runner/Info.plist
         fi
         
-        # 5. Web klasörü yoksa oluştur
+        # 5. iOS Podfile'ı güncelle: deployment target 12.0 yap
+        if [ -f "ios/Podfile" ]; then
+          echo "Updating iOS Podfile deployment target to 12.0..."
+          # Platform versionunu 12.0 yap
+          sed -i.bak "s/platform :ios, '.*'/platform :ios, '12.0'/g" ios/Podfile
+          # Tüm target'ların deployment target'ını güncelle
+          sed -i.bak "s/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 12.0/g" ios/Podfile
+        fi
+        
+        # 6. Web klasörü yoksa oluştur
         if [ ! -d "web" ]; then
           echo "Copying Web structure..."
           cp -r /tmp/flutter_init/web .
         fi
         
-        # 6. Lib ve test klasörleri (sadece yoksa)
+        # 7. Lib ve test klasörleri (sadece yoksa)
         if [ ! -d "lib" ]; then
           cp -r /tmp/flutter_init/lib .
         fi
@@ -147,7 +156,7 @@ runs:
           cp -r /tmp/flutter_init/test .
         fi
         
-        # 7. SENİN pubspec.yaml'INI GERİ YÜKLE (plugin'lerle birlikte)
+        # 8. SENİN pubspec.yaml'INI GERİ YÜKLE (plugin'lerle birlikte)
         if [ -f "/tmp/pubspec.yaml.backup" ]; then
           echo "Restoring your pubspec.yaml with plugins..."
           cp /tmp/pubspec.yaml.backup pubspec.yaml
@@ -155,7 +164,7 @@ runs:
           echo "Using default pubspec.yaml from Flutter template"
         fi
         
-        # 8. Android/app/google-services.json varsa KORU (eğer varsa)
+        # 9. Android/app/google-services.json varsa KORU (eğer varsa)
         if [ -f "android/app/google-services.json" ]; then
           echo "✅ Keeping existing android/app/google-services.json"
         fi
@@ -166,17 +175,31 @@ runs:
       shell: bash
       run: |
         echo "Installing Flutter dependencies..."
+        
+        # ÖNEMLİ: Flutter'ın plugin'leri native projelere entegre etmesi için
+        # önce clean, sonra pub get yap
+        flutter clean
         flutter pub get
         
-        # Plugin'lerin native platformlara entegre edildiğinden emin ol
-        echo "Integrating plugins with native platforms..."
-        flutter precache
+        # Flutter'ı plugin'leri native projelere entegre etmesi için zorla
+        echo "Forcing Flutter to integrate plugins with native projects..."
         
-        # Android için plugin'leri build.gradle'a ekle
+        # Android için: Flutter'ın gradle plugin'ini çalıştır
         if [ -d "android" ]; then
-          echo "Syncing Android project..."
+          echo "Building Android project to integrate plugins..."
           cd android
-          ./gradlew app:dependencies --configuration debugCompileClasspath || true
+          # Flutter'ın gradle plugin'ini etkinleştir
+          ./gradlew clean || true
+          ./gradlew build --info || true
+          cd ..
+        fi
+        
+        # iOS için: pod install'u Flutter'ın kontrolünde yap
+        if [ -d "ios" ]; then
+          echo "Preparing iOS project for plugin integration..."
+          cd ios
+          # Podfile'ı Flutter'ın kontrolüne bırak
+          rm -rf Podfile.lock Pods 2>/dev/null || true
           cd ..
         fi
         
