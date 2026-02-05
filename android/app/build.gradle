@@ -42,49 +42,23 @@ android {
         multiDexEnabled true
     }
 
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
-
     buildTypes {
         release {
             signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            signingConfig signingConfigs.debug
         }
     }
 
     flavorDimensions "default"
     productFlavors {
-        production {
-            dimension "default"
-            applicationId "com.bazarigo.app"
-            resValue "string", "app_name", "Bazarigo"
-        }
-        staging {
-            dimension "default"
-            applicationId "com.bazarigo.app.staging"
-            resValue "string", "app_name", "Bazarigo Staging"
-        }
-        development {
-            dimension "default"
-            applicationId "com.bazarigo.app.dev"
-            resValue "string", "app_name", "Bazarigo Dev"
-        }
+        production { dimension "default" }
     }
-}
-
-flutter {
-    source '../..'
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.android.support:multidex:2.0.1'
+    implementation 'androidx.multidex:multidex:2.0.1'  // 🔄 ANDROIDX'e GÜNCELLENDİ
     
     // Firebase sadece dosya varsa devreye girer
     if (file('google-services.json').exists()) {
