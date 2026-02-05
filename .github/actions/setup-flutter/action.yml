@@ -40,24 +40,52 @@ runs:
         flutter create --org com.bazarigo --project-name bazarigo_mobile .
         cd -
         
-        # Sadece eksik klasörleri kopyala (varsa olanlara dokunma)
+        # Android klasörü yoksa oluştur
         if [ ! -d "android" ]; then
           echo "Copying Android structure..."
           cp -r /tmp/flutter_init/android .
         fi
         
-        if [ ! -d "ios" ]; then
-          echo "Copying iOS structure..."
+        # iOS klasörü kontrolü - EKSİKSE VEYA BOZUKSA TAMAMEN YENİDEN OLUŞTUR
+        if [ ! -d "ios" ] || [ ! -d "ios/Runner.xcodeproj" ]; then
+          echo "iOS project missing or incomplete. Recreating..."
+          rm -rf ios 2>/dev/null || true
           cp -r /tmp/flutter_init/ios .
-        else
-          # iOS varsa ama Xcode proje dosyaları eksikse tamamla
-          if [ ! -d "ios/Runner.xcodeproj" ]; then
-            echo "Adding missing iOS project files..."
-            cp -r /tmp/flutter_init/ios/Runner.xcodeproj ios/
-            cp -r /tmp/flutter_init/ios/Runner.xcworkspace ios/
+          
+          # Senin özel iOS dosyalarını koru (eğer varsa)
+          if [ -f "ios/Runner/AppDelegate.swift" ]; then
+            echo "Preserving custom AppDelegate.swift..."
+            cp ios/Runner/AppDelegate.swift /tmp/AppDelegate.swift.backup
+            cp /tmp/flutter_init/ios/Runner/AppDelegate.swift ios/Runner/
           fi
+          
+          if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
+            echo "Preserving GoogleService-Info.plist..."
+            cp ios/Runner/GoogleService-Info.plist /tmp/GoogleService-Info.plist.backup
+            cp /tmp/flutter_init/ios/Runner/GoogleService-Info.plist ios/Runner/
+          fi
+          
+          if [ -f "ios/Runner/Info.plist" ]; then
+            echo "Preserving Info.plist..."
+            cp ios/Runner/Info.plist /tmp/Info.plist.backup
+            cp /tmp/flutter_init/ios/Runner/Info.plist ios/Runner/
+          fi
+          
+          # Yedekleri geri yükle
+          if [ -f "/tmp/AppDelegate.swift.backup" ]; then
+            cp /tmp/AppDelegate.swift.backup ios/Runner/AppDelegate.swift
+          fi
+          if [ -f "/tmp/GoogleService-Info.plist.backup" ]; then
+            cp /tmp/GoogleService-Info.plist.backup ios/Runner/GoogleService-Info.plist
+          fi
+          if [ -f "/tmp/Info.plist.backup" ]; then
+            cp /tmp/Info.plist.backup ios/Runner/Info.plist
+          fi
+        else
+          echo "iOS project already exists and appears complete."
         fi
         
+        # Web klasörü yoksa oluştur
         if [ ! -d "web" ]; then
           echo "Copying Web structure..."
           cp -r /tmp/flutter_init/web .
