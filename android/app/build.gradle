@@ -6,16 +6,37 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+// Flutter SDK path - CI için geliştirilmiş fallback
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    flutterRoot = System.getenv("FLUTTER_ROOT") ?: ""
+    // Try environment variable
+    flutterRoot = System.getenv('FLUTTER_ROOT')
+    if (flutterRoot == null) {
+        // Try to find in PATH
+        def flutterExec = System.getenv('PATH')?.split(File.pathSeparator)?.findResult { path ->
+            def flutter = new File(path, 'flutter')
+            flutter.exists() ? flutter.parentFile.parentFile.absolutePath : null
+        }
+        flutterRoot = flutterExec ?: ""
+    }
+}
+
+// Version management
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '100'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '4.0.3'
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
-// CI'da google-services.json yoksa build'in çökmesini engeller
+// Google Services - sadece dosya varsa
 if (file('google-services.json').exists()) {
     apply plugin: 'com.google.gms.google-services'
 }
@@ -23,6 +44,7 @@ if (file('google-services.json').exists()) {
 android {
     namespace "com.bazarigo.app"
     compileSdkVersion 34
+    ndkVersion "25.1.8937393"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -37,31 +59,89 @@ android {
         applicationId "com.bazarigo.app"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 100
-        versionName "4.0.3"
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
         multiDexEnabled true
+        
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            // Production'da keystore kullanılacak, şimdilik debug
             signingConfig signingConfigs.debug
+            
             minifyEnabled false
             shrinkResources false
+            
+            // ProGuard rules
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+            minifyEnabled false
         }
     }
 
-    flavorDimensions "default"
+    flavorDimensions "environment"
+    
     productFlavors {
-        production { dimension "default" }
+        production {
+            dimension "environment"
+            applicationId "com.bazarigo.app"
+        }
+        
+        staging {
+            dimension "environment"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+        }
+        
+        dev {
+            dimension "environment"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+        }
+    }
+    
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/*.kotlin_module'
     }
 }
 
+flutter {
+    source '../..'
+}
+
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.multidex:multidex:2.0.1'  // 🔄 ANDROIDX'e GÜNCELLENDİ
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
     
-    // Firebase sadece dosya varsa devreye girer
+    // Firebase - sadece dosya varsa
     if (file('google-services.json').exists()) {
-        implementation platform('com.google.firebase:firebase-bom:32.2.0')
+        implementation platform('com.google.firebase:firebase-bom:32.7.0')
+        implementation 'com.google.firebase:firebase-analytics-ktx'
+        implementation 'com.google.firebase:firebase-crashlytics-ktx'
     }
+    
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
