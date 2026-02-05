@@ -32,6 +32,7 @@ jobs:
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          init-project: 'true'
       
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
@@ -93,6 +94,7 @@ jobs:
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          init-project: 'true'
       
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
@@ -112,12 +114,45 @@ jobs:
       
       - name: 🏗️ Build Android APK & AAB
         run: |
-          if [ -f ".ci/scripts/build_android.sh" ]; then
-            bash .ci/scripts/build_android.sh production release
-          else
-            flutter build apk --release --flavor production --split-per-abi
-            flutter build appbundle --release --flavor production
-          fi
+          flutter build apk --release --flavor production --split-per-abi \
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
+            --dart-define=APP_NAME=${{ secrets.APP_NAME }} \
+            --dart-define=CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+            --dart-define=CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+            --dart-define=CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }} \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
+            --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
+            --dart-define=PORT=${{ secrets.PORT }} \
+            --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
+          
+          flutter build appbundle --release --flavor production \
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
+            --dart-define=APP_NAME=${{ secrets.APP_NAME }} \
+            --dart-define=CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+            --dart-define=CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+            --dart-define=CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }} \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
+            --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
+            --dart-define=PORT=${{ secrets.PORT }} \
+            --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
       
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
@@ -147,14 +182,29 @@ jobs:
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          init-project: 'true'
       
       - name: 🏗️ Build Web
         run: |
-          if [ -f ".ci/scripts/build_web.sh" ]; then
-            bash .ci/scripts/build_web.sh canvaskit / release
-          else
-            flutter build web --release --web-renderer canvaskit
-          fi
+          flutter build web --release --web-renderer canvaskit \
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
+            --dart-define=APP_NAME=${{ secrets.APP_NAME }} \
+            --dart-define=CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+            --dart-define=CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+            --dart-define=CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }} \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
+            --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
+            --dart-define=PORT=${{ secrets.PORT }} \
+            --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
       
       - name: 📤 Upload Web Build
         uses: actions/upload-artifact@v4
@@ -177,6 +227,7 @@ jobs:
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          init-project: 'true'
       
       - name: 📦 Install CocoaPods
         run: sudo gem install cocoapods -v 1.14.3
@@ -187,7 +238,26 @@ jobs:
           pod install --repo-update
       
       - name: 🏗️ Build iOS Simulator
-        run: flutter build ios --simulator --no-codesign --release
+        run: |
+          flutter build ios --simulator --no-codesign --release \
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
+            --dart-define=APP_NAME=${{ secrets.APP_NAME }} \
+            --dart-define=CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+            --dart-define=CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+            --dart-define=CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+            --dart-define=CLOUDINARY_UPLOAD_PRESET=${{ secrets.CLOUDINARY_UPLOAD_PRESET }} \
+            --dart-define=FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
+            --dart-define=FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
+            --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
+            --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
+            --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
+            --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
+            --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
+            --dart-define=PORT=${{ secrets.PORT }} \
+            --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
       
       - name: ✅ iOS Build Complete
         run: echo "iOS build completed successfully"
