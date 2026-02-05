@@ -34,64 +34,75 @@ runs:
       run: |
         echo "Initializing Flutter project structure..."
         
-        # Geçici dizinde temiz Flutter projesi oluştur
+        # 1. ÖNCE SENİN pubspec.yaml'INI KORU (eğer varsa)
+        if [ -f "pubspec.yaml" ]; then
+          echo "Backing up existing pubspec.yaml..."
+          cp pubspec.yaml /tmp/pubspec.yaml.backup
+        fi
+        
+        # 2. Geçici dizinde temiz Flutter projesi oluştur
         mkdir -p /tmp/flutter_init
         cd /tmp/flutter_init
         flutter create --org com.bazarigo --project-name bazarigo_mobile .
         cd -
         
-        # Android klasörü yoksa oluştur
+        # 3. Android klasörü yoksa oluştur
         if [ ! -d "android" ]; then
           echo "Copying Android structure..."
           cp -r /tmp/flutter_init/android .
         fi
         
-        # iOS klasörü kontrolü - EKSİKSE VEYA BOZUKSA TAMAMEN YENİDEN OLUŞTUR
-        if [ ! -d "ios" ] || [ ! -d "ios/Runner.xcodeproj" ]; then
-          echo "iOS project missing or incomplete. Recreating..."
-          rm -rf ios 2>/dev/null || true
-          cp -r /tmp/flutter_init/ios .
+        # 4. iOS klasörü kontrolü - TAMAMEN YENİDEN OLUŞTUR (sürekli hata veriyor)
+        echo "Forcing iOS project recreation..."
+        rm -rf ios 2>/dev/null || true
+        cp -r /tmp/flutter_init/ios .
+        
+        # 5. Özel iOS dosyalarını koru (eğer varsa)
+        if [ -f "/tmp/flutter_init/ios/Runner/AppDelegate.swift" ]; then
+          echo "Checking for custom iOS files..."
           
-          # Senin özel iOS dosyalarını koru (eğer varsa)
+          # AppDelegate.swift koru
           if [ -f "ios/Runner/AppDelegate.swift" ]; then
             echo "Preserving custom AppDelegate.swift..."
-            cp ios/Runner/AppDelegate.swift /tmp/AppDelegate.swift.backup
-            cp /tmp/flutter_init/ios/Runner/AppDelegate.swift ios/Runner/
+            cp ios/Runner/AppDelegate.swift /tmp/AppDelegate.swift.custom
           fi
           
+          # GoogleService-Info.plist koru
           if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
             echo "Preserving GoogleService-Info.plist..."
-            cp ios/Runner/GoogleService-Info.plist /tmp/GoogleService-Info.plist.backup
-            cp /tmp/flutter_init/ios/Runner/GoogleService-Info.plist ios/Runner/
+            cp ios/Runner/GoogleService-Info.plist /tmp/GoogleService-Info.plist.custom
           fi
           
+          # Info.plist koru
           if [ -f "ios/Runner/Info.plist" ]; then
             echo "Preserving Info.plist..."
-            cp ios/Runner/Info.plist /tmp/Info.plist.backup
-            cp /tmp/flutter_init/ios/Runner/Info.plist ios/Runner/
+            cp ios/Runner/Info.plist /tmp/Info.plist.custom
           fi
           
-          # Yedekleri geri yükle
-          if [ -f "/tmp/AppDelegate.swift.backup" ]; then
-            cp /tmp/AppDelegate.swift.backup ios/Runner/AppDelegate.swift
+          # Flutter'ın oluşturduğu dosyaları kopyala
+          cp /tmp/flutter_init/ios/Runner/AppDelegate.swift ios/Runner/
+          cp /tmp/flutter_init/ios/Runner/GoogleService-Info.plist ios/Runner/
+          cp /tmp/flutter_init/ios/Runner/Info.plist ios/Runner/
+          
+          # Yedekleri geri yükle (eğer varsa)
+          if [ -f "/tmp/AppDelegate.swift.custom" ]; then
+            cp /tmp/AppDelegate.swift.custom ios/Runner/AppDelegate.swift
           fi
-          if [ -f "/tmp/GoogleService-Info.plist.backup" ]; then
-            cp /tmp/GoogleService-Info.plist.backup ios/Runner/GoogleService-Info.plist
+          if [ -f "/tmp/GoogleService-Info.plist.custom" ]; then
+            cp /tmp/GoogleService-Info.plist.custom ios/Runner/GoogleService-Info.plist
           fi
-          if [ -f "/tmp/Info.plist.backup" ]; then
-            cp /tmp/Info.plist.backup ios/Runner/Info.plist
+          if [ -f "/tmp/Info.plist.custom" ]; then
+            cp /tmp/Info.plist.custom ios/Runner/Info.plist
           fi
-        else
-          echo "iOS project already exists and appears complete."
         fi
         
-        # Web klasörü yoksa oluştur
+        # 6. Web klasörü yoksa oluştur
         if [ ! -d "web" ]; then
           echo "Copying Web structure..."
           cp -r /tmp/flutter_init/web .
         fi
         
-        # Lib ve test klasörleri (sadece yoksa)
+        # 7. Lib ve test klasörleri (sadece yoksa)
         if [ ! -d "lib" ]; then
           cp -r /tmp/flutter_init/lib .
         fi
@@ -100,15 +111,39 @@ runs:
           cp -r /tmp/flutter_init/test .
         fi
         
+        # 8. SENİN pubspec.yaml'INI GERİ YÜKLE (plugin'lerle birlikte)
+        if [ -f "/tmp/pubspec.yaml.backup" ]; then
+          echo "Restoring your pubspec.yaml with plugins..."
+          cp /tmp/pubspec.yaml.backup pubspec.yaml
+        else
+          echo "Using default pubspec.yaml from Flutter template"
+        fi
+        
         echo "✅ Project initialization complete"
+    
+    - name: 📥 Install Flutter Dependencies
+      shell: bash
+      run: |
+        echo "Installing Flutter dependencies..."
+        flutter pub get
+        
+        # Plugin'lerin native platformlara entegre edildiğinden emin ol
+        echo "Integrating plugins with native platforms..."
+        flutter precache
+        
+        # Android için plugin'leri build.gradle'a ekle
+        if [ -d "android" ]; then
+          echo "Syncing Android project..."
+          cd android
+          ./gradlew app:dependencies --configuration debugCompileClasspath || true
+          cd ..
+        fi
+        
+        echo "✅ Dependencies installed successfully"
     
     - name: 🔍 Flutter Doctor
       shell: bash
       run: flutter doctor -v
-    
-    - name: 📥 Get Dependencies
-      shell: bash
-      run: flutter pub get
     
     - name: ✅ Verify Installation
       shell: bash
