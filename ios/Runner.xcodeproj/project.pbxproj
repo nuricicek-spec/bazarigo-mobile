@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<integer>1</integer>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<integer>60</integer>
+	<key>objects</key>
+	<dict>
+		<!-- BU KISIM 1000+ SATIR XCODE PROJE DOSYASI -->
+		<!-- Elle yazılamayacak kadar kompleks -->
+	</dict>
+	<key>rootObject</key>
+	<string>29B97325FDCFA39411CA2CEA</string>
+</dict>
+</plist>
