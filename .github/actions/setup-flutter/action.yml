@@ -11,6 +11,11 @@ inputs:
     description: 'Custom cache key suffix'
     required: false
     default: 'default'
+  
+  init-project:
+    description: 'Initialize Flutter project if not exists'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -22,6 +27,52 @@ runs:
         cache: true
         cache-key: flutter-${{ inputs.cache-key }}-${{ runner.os }}
         cache-path: ${{ runner.tool_cache }}/flutter
+    
+    - name: 🏗️ Initialize Flutter Project
+      if: ${{ inputs.init-project == 'true' }}
+      shell: bash
+      run: |
+        echo "Initializing Flutter project structure..."
+        
+        # Geçici dizinde temiz Flutter projesi oluştur
+        mkdir -p /tmp/flutter_init
+        cd /tmp/flutter_init
+        flutter create --org com.bazarigo --project-name bazarigo_mobile .
+        cd -
+        
+        # Sadece eksik klasörleri kopyala (varsa olanlara dokunma)
+        if [ ! -d "android" ]; then
+          echo "Copying Android structure..."
+          cp -r /tmp/flutter_init/android .
+        fi
+        
+        if [ ! -d "ios" ]; then
+          echo "Copying iOS structure..."
+          cp -r /tmp/flutter_init/ios .
+        else
+          # iOS varsa ama Xcode proje dosyaları eksikse tamamla
+          if [ ! -d "ios/Runner.xcodeproj" ]; then
+            echo "Adding missing iOS project files..."
+            cp -r /tmp/flutter_init/ios/Runner.xcodeproj ios/
+            cp -r /tmp/flutter_init/ios/Runner.xcworkspace ios/
+          fi
+        fi
+        
+        if [ ! -d "web" ]; then
+          echo "Copying Web structure..."
+          cp -r /tmp/flutter_init/web .
+        fi
+        
+        # Lib ve test klasörleri (sadece yoksa)
+        if [ ! -d "lib" ]; then
+          cp -r /tmp/flutter_init/lib .
+        fi
+        
+        if [ ! -d "test" ]; then
+          cp -r /tmp/flutter_init/test .
+        fi
+        
+        echo "✅ Project initialization complete"
     
     - name: 🔍 Flutter Doctor
       shell: bash
