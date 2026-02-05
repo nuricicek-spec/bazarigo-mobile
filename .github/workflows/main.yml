@@ -12,7 +12,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.16.9"
-  JAVA_VERSION: "11"
+  JAVA_VERSION: "17"
   JAVA_OPTS: "-Xmx4G -XX:+UseG1GC"
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=true -Dkotlin.daemon.jvmargs=-Xmx1g"
 
@@ -169,18 +169,43 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
       
+      - name: 🔍 Verify iOS Project
+        shell: bash
+        run: |
+          if [ ! -f "ios/Runner.xcodeproj/project.pbxproj" ]; then
+            echo "❌ ERROR: iOS project not found!"
+            echo "Run locally: flutter create --platforms=ios ."
+            exit 1
+          fi
+          echo "✅ iOS project exists"
+      
+      - name: 🔍 Verify Flutter Generated Files
+        shell: bash
+        run: |
+          flutter pub get
+          
+          if [ ! -f "ios/Flutter/Generated.xcconfig" ]; then
+            echo "❌ ERROR: Flutter iOS config not generated!"
+            exit 1
+          fi
+          echo "✅ Flutter iOS config exists"
+      
       - name: 📦 Install CocoaPods
+        shell: bash
         run: sudo gem install cocoapods -v 1.14.3
       
       - name: 🔧 Pod Install
+        shell: bash
         run: |
           cd ios
           pod install --repo-update
       
       - name: 🏗️ Build iOS Simulator
+        shell: bash
         run: flutter build ios --simulator --no-codesign --release
       
       - name: ✅ iOS Build Complete
+        shell: bash
         run: echo "iOS build completed successfully"
 
   notify:
