@@ -50,59 +50,95 @@ runs:
         if [ ! -d "android" ]; then
           echo "Copying Android structure..."
           cp -r /tmp/flutter_init/android .
+        else
+          # Android varsa, sadece eksik build dosyalarını kopyala
+          # google-services.json'a DOKUNMA!
+          echo "Android folder exists, only adding missing project files..."
+          
+          # build.gradle dosyaları (eğer eksikse)
+          if [ ! -f "android/build.gradle" ]; then
+            cp /tmp/flutter_init/android/build.gradle android/
+          fi
+          
+          if [ ! -f "android/gradle.properties" ]; then
+            cp /tmp/flutter_init/android/gradle.properties android/
+          fi
+          
+          # settings.gradle (senin özel olanı korunacak)
+          if [ ! -f "android/settings.gradle" ]; then
+            cp /tmp/flutter_init/android/settings.gradle android/
+          fi
+          
+          # gradle wrapper dosyaları
+          if [ ! -f "android/gradlew" ]; then
+            cp /tmp/flutter_init/android/gradlew android/
+            chmod +x android/gradlew
+          fi
+          
+          if [ ! -f "android/gradlew.bat" ]; then
+            cp /tmp/flutter_init/android/gradlew.bat android/
+          fi
+          
+          # gradle wrapper klasörü
+          if [ ! -d "android/gradle/wrapper" ]; then
+            mkdir -p android/gradle
+            cp -r /tmp/flutter_init/android/gradle/wrapper android/gradle/
+          fi
         fi
         
-        # 4. iOS klasörü kontrolü - TAMAMEN YENİDEN OLUŞTUR (sürekli hata veriyor)
+        # 4. iOS klasörü kontrolü - TAMAMEN YENİDEN OLUŞTUR
         echo "Forcing iOS project recreation..."
+        
+        # Mevcut iOS klasöründeki ÖZEL dosyaları yedekle
+        if [ -d "ios" ]; then
+          echo "Backing up custom iOS files..."
+          
+          # GoogleService-Info.plist varsa yedekle (Firebase config - Flutter'da yok)
+          if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
+            cp ios/Runner/GoogleService-Info.plist /tmp/GoogleService-Info.plist.backup
+            echo "Backed up GoogleService-Info.plist"
+          fi
+          
+          # AppDelegate.swift varsa yedekle
+          if [ -f "ios/Runner/AppDelegate.swift" ]; then
+            cp ios/Runner/AppDelegate.swift /tmp/AppDelegate.swift.backup
+            echo "Backed up AppDelegate.swift"
+          fi
+          
+          # Info.plist varsa yedekle
+          if [ -f "ios/Runner/Info.plist" ]; then
+            cp ios/Runner/Info.plist /tmp/Info.plist.backup
+            echo "Backed up Info.plist"
+          fi
+        fi
+        
+        # iOS klasörünü tamamen sil ve yeniden oluştur
         rm -rf ios 2>/dev/null || true
         cp -r /tmp/flutter_init/ios .
         
-        # 5. Özel iOS dosyalarını koru (eğer varsa)
-        if [ -f "/tmp/flutter_init/ios/Runner/AppDelegate.swift" ]; then
-          echo "Checking for custom iOS files..."
-          
-          # AppDelegate.swift koru
-          if [ -f "ios/Runner/AppDelegate.swift" ]; then
-            echo "Preserving custom AppDelegate.swift..."
-            cp ios/Runner/AppDelegate.swift /tmp/AppDelegate.swift.custom
-          fi
-          
-          # GoogleService-Info.plist koru
-          if [ -f "ios/Runner/GoogleService-Info.plist" ]; then
-            echo "Preserving GoogleService-Info.plist..."
-            cp ios/Runner/GoogleService-Info.plist /tmp/GoogleService-Info.plist.custom
-          fi
-          
-          # Info.plist koru
-          if [ -f "ios/Runner/Info.plist" ]; then
-            echo "Preserving Info.plist..."
-            cp ios/Runner/Info.plist /tmp/Info.plist.custom
-          fi
-          
-          # Flutter'ın oluşturduğu dosyaları kopyala
-          cp /tmp/flutter_init/ios/Runner/AppDelegate.swift ios/Runner/
-          cp /tmp/flutter_init/ios/Runner/GoogleService-Info.plist ios/Runner/
-          cp /tmp/flutter_init/ios/Runner/Info.plist ios/Runner/
-          
-          # Yedekleri geri yükle (eğer varsa)
-          if [ -f "/tmp/AppDelegate.swift.custom" ]; then
-            cp /tmp/AppDelegate.swift.custom ios/Runner/AppDelegate.swift
-          fi
-          if [ -f "/tmp/GoogleService-Info.plist.custom" ]; then
-            cp /tmp/GoogleService-Info.plist.custom ios/Runner/GoogleService-Info.plist
-          fi
-          if [ -f "/tmp/Info.plist.custom" ]; then
-            cp /tmp/Info.plist.custom ios/Runner/Info.plist
-          fi
+        # Yedeklenmiş dosyaları geri yükle
+        if [ -f "/tmp/GoogleService-Info.plist.backup" ]; then
+          echo "Restoring GoogleService-Info.plist..."
+          cp /tmp/GoogleService-Info.plist.backup ios/Runner/GoogleService-Info.plist
         fi
         
-        # 6. Web klasörü yoksa oluştur
+        if [ -f "/tmp/AppDelegate.swift.backup" ]; then
+          echo "Restoring AppDelegate.swift..."
+          cp /tmp/AppDelegate.swift.backup ios/Runner/AppDelegate.swift
+        fi
+        
+        if [ -f "/tmp/Info.plist.backup" ]; then
+          echo "Restoring Info.plist..."
+          cp /tmp/Info.plist.backup ios/Runner/Info.plist
+        fi
+        
+        # 5. Web klasörü yoksa oluştur
         if [ ! -d "web" ]; then
           echo "Copying Web structure..."
           cp -r /tmp/flutter_init/web .
         fi
         
-        # 7. Lib ve test klasörleri (sadece yoksa)
+        # 6. Lib ve test klasörleri (sadece yoksa)
         if [ ! -d "lib" ]; then
           cp -r /tmp/flutter_init/lib .
         fi
@@ -111,12 +147,17 @@ runs:
           cp -r /tmp/flutter_init/test .
         fi
         
-        # 8. SENİN pubspec.yaml'INI GERİ YÜKLE (plugin'lerle birlikte)
+        # 7. SENİN pubspec.yaml'INI GERİ YÜKLE (plugin'lerle birlikte)
         if [ -f "/tmp/pubspec.yaml.backup" ]; then
           echo "Restoring your pubspec.yaml with plugins..."
           cp /tmp/pubspec.yaml.backup pubspec.yaml
         else
           echo "Using default pubspec.yaml from Flutter template"
+        fi
+        
+        # 8. Android/app/google-services.json varsa KORU (eğer varsa)
+        if [ -f "android/app/google-services.json" ]; then
+          echo "✅ Keeping existing android/app/google-services.json"
         fi
         
         echo "✅ Project initialization complete"
