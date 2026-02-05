@@ -184,11 +184,15 @@ jobs:
         run: |
           sudo gem install cocoapods -v 1.14.3
       
-      - name: 🔧 Install iOS Dependencies
+      - name: 🍎 iOS Pods Fix  # 🔄 POD FIX EKLENDİ
         run: |
           cd ios
-          arch -x86_64 pod install --repo-update
+          rm -rf Pods
+          rm -f Podfile.lock
+          pod install --repo-update
       
       - name: 🏗️ Build iOS (Simulator)
         run: |
           flutter build ios --simulator --no-codesign --verbose
+
+# 🚫 RELEASE ADIMI SİLİNDİ - softprops/action-gh-release kaldırıldı
