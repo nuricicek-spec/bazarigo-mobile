@@ -14,6 +14,8 @@ on:
 
 env:
   FLUTTER_VERSION: "3.16.9"
+  JAVA_OPTS: "-Xmx4G -XX:+UseG1GC"
+  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.daemon.jvmargs=-Xmx1g"
 
 jobs:
   validate:
