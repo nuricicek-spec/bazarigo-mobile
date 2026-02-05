@@ -18,7 +18,7 @@ on:
 
 env:
   FLUTTER_VERSION: "3.16.9"
-  JAVA_VERSION: "11"
+  JAVA_VERSION: "17"
   JAVA_OPTS: "-Xmx4G -XX:+UseG1GC"
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=true -Dkotlin.daemon.jvmargs=-Xmx1g"
 
