@@ -10,11 +10,6 @@ inputs:
     description: 'Build flavor (dev, staging, production)'
     required: false
     default: 'production'
-  
-  build-number:
-    description: 'Build number'
-    required: false
-    default: ''
 
 runs:
   using: 'composite'
@@ -27,27 +22,15 @@ runs:
         
         case "${{ inputs.platform }}" in
           android)
-            if [ -f ".ci/scripts/build_android.sh" ]; then
-              bash .ci/scripts/build_android.sh
-            else
-              flutter build apk --release --split-per-abi
-            fi
+            flutter build apk --release --flavor ${{ inputs.flavor }} --split-per-abi
             ;;
           
           ios)
-            if [ -f ".ci/scripts/build_ios.sh" ]; then
-              bash .ci/scripts/build_ios.sh
-            else
-              echo "iOS build requires macOS runner"
-            fi
+            flutter build ios --simulator --no-codesign --debug
             ;;
           
           web)
-            if [ -f ".ci/scripts/build_web.sh" ]; then
-              bash .ci/scripts/build_web.sh
-            else
-              flutter build web --release
-            fi
+            flutter build web --release --web-renderer canvaskit
             ;;
           
           *)
