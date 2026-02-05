@@ -112,7 +112,14 @@ jobs:
           flutter.versionName=4.0.3
           EOF
       
+      - name: 🛠️ Prepare JSON Secrets
+        shell: bash
+        run: |
+          echo "FIREBASE_PRIVATE_KEY_ESC=$(echo -n '${{ secrets.FIREBASE_PRIVATE_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+          echo "YANDEX_SERVICE_ACCOUNT_KEY_ESC=$(echo -n '${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+      
       - name: 🏗️ Build Android APK & AAB
+        shell: bash
         run: |
           flutter build apk --release --flavor production --split-per-abi \
             --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
@@ -126,13 +133,13 @@ jobs:
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
             --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
-            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ env.FIREBASE_PRIVATE_KEY_ESC }}" \
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
             --dart-define=PORT=${{ secrets.PORT }} \
             --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
-            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ env.YANDEX_SERVICE_ACCOUNT_KEY_ESC }}"
           
           flutter build appbundle --release --flavor production \
             --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
@@ -146,13 +153,13 @@ jobs:
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
             --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
-            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ env.FIREBASE_PRIVATE_KEY_ESC }}" \
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
             --dart-define=PORT=${{ secrets.PORT }} \
             --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
-            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ env.YANDEX_SERVICE_ACCOUNT_KEY_ESC }}"
       
       - name: 📤 Upload APK
         uses: actions/upload-artifact@v4
@@ -184,7 +191,14 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           init-project: 'true'
       
+      - name: 🛠️ Prepare JSON Secrets
+        shell: bash
+        run: |
+          echo "FIREBASE_PRIVATE_KEY_ESC=$(echo -n '${{ secrets.FIREBASE_PRIVATE_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+          echo "YANDEX_SERVICE_ACCOUNT_KEY_ESC=$(echo -n '${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+      
       - name: 🏗️ Build Web
+        shell: bash
         run: |
           flutter build web --release --web-renderer canvaskit \
             --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
@@ -198,13 +212,13 @@ jobs:
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
             --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
-            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ env.FIREBASE_PRIVATE_KEY_ESC }}" \
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
             --dart-define=PORT=${{ secrets.PORT }} \
             --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
-            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ env.YANDEX_SERVICE_ACCOUNT_KEY_ESC }}"
       
       - name: 📤 Upload Web Build
         uses: actions/upload-artifact@v4
@@ -229,6 +243,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           init-project: 'true'
       
+      - name: 🛠️ Prepare JSON Secrets
+        shell: bash
+        run: |
+          echo "FIREBASE_PRIVATE_KEY_ESC=$(echo -n '${{ secrets.FIREBASE_PRIVATE_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+          echo "YANDEX_SERVICE_ACCOUNT_KEY_ESC=$(echo -n '${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}' | sed 's/"/\\"/g' | tr -d '\n')" >> $GITHUB_ENV
+      
       - name: 📦 Install CocoaPods
         run: sudo gem install cocoapods -v 1.14.3
       
@@ -238,6 +258,7 @@ jobs:
           pod install --repo-update
       
       - name: 🏗️ Build iOS Simulator
+        shell: bash
         run: |
           flutter build ios --simulator --no-codesign --release \
             --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} \
@@ -251,13 +272,13 @@ jobs:
             --dart-define=FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
             --dart-define=FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }} \
             --dart-define=FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
-            --dart-define=FIREBASE_PRIVATE_KEY="${{ secrets.FIREBASE_PRIVATE_KEY }}" \
+            --dart-define=FIREBASE_PRIVATE_KEY="${{ env.FIREBASE_PRIVATE_KEY_ESC }}" \
             --dart-define=FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
             --dart-define=FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
             --dart-define=HOSTING_BASE=${{ secrets.HOSTING_BASE }} \
             --dart-define=PORT=${{ secrets.PORT }} \
             --dart-define=YANDEX_FOLDER_ID=${{ secrets.YANDEX_FOLDER_ID }} \
-            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ secrets.YANDEX_SERVICE_ACCOUNT_KEY }}"
+            --dart-define=YANDEX_SERVICE_ACCOUNT_KEY="${{ env.YANDEX_SERVICE_ACCOUNT_KEY_ESC }}"
       
       - name: ✅ iOS Build Complete
         run: echo "iOS build completed successfully"
