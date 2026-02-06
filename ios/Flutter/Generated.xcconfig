@@ -1,0 +1,5 @@
+echo 'FLUTTER_ROOT=flutter' > ios/Flutter/Generated.xcconfig
+echo 'FLUTTER_APPLICATION_PATH=.' >> ios/Flutter/Generated.xcconfig
+echo 'FLUTTER_TARGET=lib/main.dart' >> ios/Flutter/Generated.xcconfig
+echo 'FLUTTER_BUILD_DIR=build' >> ios/Flutter/Generated.xcconfig
+echo 'SYMROOT=../build' >> ios/Flutter/Generated.xcconfig
